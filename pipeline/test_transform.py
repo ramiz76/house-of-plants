@@ -1,6 +1,6 @@
 """"""
 
-from pytest import fixture, raises
+from pytest import fixture
 import pandas as pd
 from pandas import DataFrame
 
@@ -17,6 +17,15 @@ def duplicate_data() -> DataFrame:
         columns=["plant_name","test1"], index=[1,2,3])
 
 
-def test_remove_duplicate_plants(duplicate_data):
+def test_remove_duplicate_plants_data_removed(duplicate_data):
+    """Verifies that correct amount of data was removed"""
     returned_data = remove_duplicate_plants(duplicate_data)
     assert returned_data.shape == (1,2)
+
+
+def test_remove_duplicate_plants_data_saved(duplicate_data):
+    """Verifies that correct data was saved"""
+    returned_data = remove_duplicate_plants(duplicate_data)
+    assumed_return = duplicate_data.iloc[0]
+    assert returned_data.iloc[0].equals(assumed_return)
+    assert returned_data.iloc[1:3].empty
