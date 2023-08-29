@@ -37,6 +37,7 @@ def get_plant_data_by_id(plant_id: int) -> dict:
 
 
 def obtain_relevant_data(plant: dict) -> dict:
+    """Obtains only the relevant data from the plant api and returns as a dict."""
 
     relevant_data = {
         "plant_name": plant["name"],
@@ -73,12 +74,13 @@ def get_relevant_plant_data() -> list[dict]:
                 relevant_data = {
                     "api_id": plant["plant_id"], "error": "Missing temperature reading."}
 
-            if plant["soil_moisture"] == None:
+            elif plant["soil_moisture"] == None:
 
                 relevant_data = {
                     "api_id": plant["plant_id"], "error": "Missing soil moisture reading."}
 
-            relevant_data = obtain_relevant_data(plant)
+            else:
+                relevant_data = obtain_relevant_data(plant)
 
         else:
             relevant_data = {
