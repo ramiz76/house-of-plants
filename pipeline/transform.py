@@ -1,19 +1,22 @@
-""""""
+"""Modifies data from the csv file and cleans it"""
 
 from datetime import datetime
+from os import remove
+from re import search
 
 from pandas import DataFrame
 import pandas as pd
 
 
 def remove_duplicate_plants(plant_data: DataFrame) -> DataFrame:
-    """"""
+    """Returns data-frame without duplicate plants"""
     plant_data.drop_duplicates(subset="plant_name", keep="first", inplace=True)
     return plant_data
 
 
 def time_format_changed(row: str) -> datetime | None:
-    """"""
+    """Returns datatype object from a string
+    or None if None entered"""
     try:
         format = "%a, %d %b %Y %H:%M:%S %Z"
         time = datetime.strptime(row, format)
@@ -23,7 +26,8 @@ def time_format_changed(row: str) -> datetime | None:
 
 
 def missing_time_fixed(row: str, cache: dict) -> datetime:
-    """"""
+    """Changes recorded time to a value if None entered
+    and always returns a datatype value"""
     try:
         time = datetime.strptime(row, "%Y-%m-%d %H:%M:%S")
         cache["last_time"] = time
@@ -33,7 +37,8 @@ def missing_time_fixed(row: str, cache: dict) -> datetime:
 
 
 def correct_time_recorded(plant_data: DataFrame) -> tuple[DataFrame]:
-    """"""
+    """Returns errors recorded after time-recorded is added and
+    data-frame object without errors in timestamps"""
     cache_dict = {}
     plant_data["last_watered"] = plant_data["last_watered"].apply(time_format_changed)
     plant_data["recording_taken"] = plant_data["recording_taken"].apply(lambda
@@ -45,7 +50,8 @@ def correct_time_recorded(plant_data: DataFrame) -> tuple[DataFrame]:
 
 
 def change_to_numeric(plant_data: DataFrame, columns: str) -> DataFrame:
-    """"""
+    """Changes entered columns to a numeric type and removes rows where data
+    cannot be numeric for specified columns"""
     for column in columns:
         plant_data[column] = pd.to_numeric(plant_data[column], errors="coerce")
         plant_data = plant_data.dropna(subset=[column])
@@ -53,7 +59,7 @@ def change_to_numeric(plant_data: DataFrame, columns: str) -> DataFrame:
 
 
 def removing_invalid_values(plant_data: DataFrame) -> DataFrame:
-    """"""
+    """Returns a data-frame without invalid values in columns"""
     columns_to_numeric = ["soil_moisture","temperature", "longitude", "latitude"]
     plant_data = change_to_numeric(plant_data, columns_to_numeric)
 
@@ -64,33 +70,60 @@ def removing_invalid_values(plant_data: DataFrame) -> DataFrame:
     return plant_data
 
 
-def remove_comma(row: str) -> str | None:
-    """"""
-    if row is None:
-        return
-    else:
+def remove_comma(row: str) -> str:
+    """Removes a comma that was noticed
+    in the plant name"""
+    if row.count(",") > 1:
         return row.replace(",", "")
+    return row
 
 
 def remove_formatting(row: str) -> str:
-    """"""
+    """Removes list format to a string"""
     if row.find("[") != -1:
         return row[2:-2]
     return row
 
 
 def renaming_values(plant_data: DataFrame) -> DataFrame:
-    """"""
+    """Beautifying values in cells and returns edited data-frame"""
     plant_data["plant_name"] = plant_data["plant_name"].apply(remove_comma)
     plant_data["scientific_name"] = plant_data["scientific_name"].apply(remove_formatting)
     return plant_data
 
 
+def find_email(row: str) -> str | None:
+    """Finds an email with regex from text"""
+    if not isinstance(row, str):
+        return
+    email_expression = "((?:(?:[a-z0-9_-]+\.)?)+[a-z0-9_-]+@[a-z0-9_-]+\.[a-z]+(?:\.[a-z]+)?)"
+    match = search(row, email_expression)
+    return match.group() if match is not None else None
+
+
+def find_phone_number(row: str) -> str | None:
+    """Finds a phone number with regex from text"""
+    number_expression = "(\+?\(?[0-9-]+\)?(:?[x0-9-]+)?)"
+    match = search(row, number_expression)
+    return match.group() if match is not None else None
+
+
+def verifying_botanist_data(plant_data: DataFrame) -> DataFrame:
+    """Verifies the email and phone-number format in the data-frame"""
+    plant_data["email"] = plant_data["email"].apply(find_email)
+    plant_data["phone"] = plant_data["phone"].apply(lambda row:
+                find_phone_number if isinstance(row, str) else None)
+    return plant_data
+
+
 if __name__ == "__main__":
-    data = pd.read_csv("plant_data.csv")
+    csv_filename = "extracted_data/plant_data.csv"
+    data = pd.read_csv(csv_filename)
     data.set_index("api_id")
     data, error_rows = correct_time_recorded(data)
-    # pd.concat([error_rows, plant_data]).reset_index()
     data = renaming_values(data)
     data = remove_duplicate_plants(data)
-    print(data)
+    data = verifying_botanist_data(data)
+    data = pd.concat([error_rows, data])
+    remove(csv_filename)
+    data.to_csv(csv_filename)
