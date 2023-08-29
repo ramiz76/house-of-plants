@@ -9,7 +9,7 @@ def get_plant_data_by_id(plant_id: int) -> dict:
 
     url = f"https://data-eng-plants-api.herokuapp.com/plants/{plant_id}"
 
-    response = requests.get(url, timeout=30)
+    response = requests.get(url, timeout=10)
 
     return response.json()
 
@@ -20,7 +20,7 @@ def get_relevant_plant_data() -> list[dict]:
 
     list_of_plants = []
 
-    for i in range(50):
+    for i in range(51):
 
         plant = get_plant_data_by_id(i)
 
