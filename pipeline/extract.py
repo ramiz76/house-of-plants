@@ -43,8 +43,8 @@ def obtain_relevant_data(plant: dict) -> dict:
         "plant_name": plant["name"],
         "scientific_name": plant.get("scientific_name", "unknown"),
         "api_id": plant["plant_id"], "cycle": plant.get("cycle", "unknown"),
-        "last_watered": plant.get("last_watered", None), "soil_moisture": plant["soil_moisture"],
-        "temperature": plant["temperature"], "sunlight": plant.get("sunlight", "unknown"),
+        "last_watered": plant.get("last_watered", None), "soil_moisture": plant.get("soil_moisture", None),
+        "temperature": plant.get("temperature", None), "sunlight": plant.get("sunlight", "unknown"),
         "recording_taken": plant.get("recording_taken", None),
         "longitude": plant["origin_location"][0],
         "latitude": plant["origin_location"][1],
@@ -69,15 +69,15 @@ def get_relevant_plant_data() -> list[dict]:
 
         if "error" not in plant.keys():
 
-            if plant["temperature"] == None:
+            if plant["temperature"] is None:
 
                 relevant_data = {
                     "api_id": plant["plant_id"], "error": "Missing temperature reading."}
 
-            elif plant["soil_moisture"] == None:
+            elif plant["soil_moisture"] is None:
 
                 relevant_data = {
-                    "api_id": plant["plant_id"], "error": "Missing soil moisture reading."}
+                    "api_id": plant["plant_id"], "error": "Missing soil_moisture reading."}
 
             else:
                 relevant_data = obtain_relevant_data(plant)
