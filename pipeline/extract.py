@@ -39,20 +39,25 @@ def get_plant_data_by_id(plant_id: int) -> dict:
 def obtain_relevant_data(plant: dict) -> dict:
     """Obtains only the relevant data from the plant api and returns as a dict."""
 
-    relevant_data = {
-        "plant_name": plant["name"],
-        "scientific_name": plant.get("scientific_name", "unknown"),
-        "api_id": plant["plant_id"], "cycle": plant.get("cycle", "unknown"),
-        "last_watered": plant.get("last_watered", None), "soil_moisture": plant.get("soil_moisture", None),
-        "temperature": plant.get("temperature", None), "sunlight": plant.get("sunlight", "unknown"),
-        "recording_taken": plant.get("recording_taken", None),
-        "longitude": plant["origin_location"][0],
-        "latitude": plant["origin_location"][1],
-        "country": plant["origin_location"][3],
-        "continent": plant["origin_location"][4].split("/")[0],
-        "botanist_name": plant["botanist"]["name"],
-        "email": plant["botanist"]["email"], "phone": plant["botanist"]["phone"]
-    }
+    try:
+        relevant_data = {
+            "plant_name": plant["name"],
+            "scientific_name": plant.get("scientific_name", "unknown"),
+            "api_id": plant["plant_id"], "cycle": plant.get("cycle", "unknown"),
+            "last_watered": plant.get("last_watered", None), "soil_moisture": plant.get("soil_moisture", None),
+            "temperature": plant.get("temperature", None), "sunlight": plant.get("sunlight", "unknown"),
+            "recording_taken": plant.get("recording_taken", None),
+            "longitude": plant["origin_location"][0],
+            "latitude": plant["origin_location"][1],
+            "country": plant["origin_location"][3],
+            "continent": plant["origin_location"][4].split("/")[0],
+            "botanist_name": plant["botanist"]["name"],
+            "email": plant["botanist"]["email"], "phone": plant["botanist"]["phone"]
+        }
+
+    except:
+        relevant_data = {
+            "api_id": plant["plant_id"], "error": "Missing field in data."}
 
     return relevant_data
 
