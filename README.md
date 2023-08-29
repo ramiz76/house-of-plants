@@ -12,7 +12,7 @@ Monitoring the health of plants for Liverpool Natural History Museum
 
 ## Setup - Cloud
 
-- As above, use cron to run pipeline.py every minute?
+- As above, use cron to run main.py / pipeline.py / sh script every minute
 
 ## Assumptions we've made
 
