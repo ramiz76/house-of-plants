@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from os import remove
-from re import search
+from re import search, fullmatch
 
 from pandas import DataFrame
 import pandas as pd
@@ -73,7 +73,7 @@ def removing_invalid_values(plant_data: DataFrame) -> DataFrame:
 def remove_comma(row: str) -> str:
     """Removes a comma that was noticed
     in the plant name"""
-    if row.count(",") > 1:
+    if row.count(",") >= 1:
         return row.replace(",", "")
     return row
 
@@ -96,15 +96,16 @@ def find_email(row: str) -> str | None:
     """Finds an email with regex from text"""
     if not isinstance(row, str):
         return
-    email_expression = "((?:(?:[a-z0-9_-]+\.)?)+[a-z0-9_-]+@[a-z0-9_-]+\.[a-z]+(?:\.[a-z]+)?)"
-    match = search(row, email_expression)
+    email_expression = r"((?:(?:[a-z0-9_-]+\.)?)+[a-z0-9_-]+@[a-z0-9_-]+\.[a-z]+(?:\.[a-z]+)?)"
+    match = fullmatch(email_expression, row)
+    print(match)
     return match.group() if match is not None else None
 
 
 def find_phone_number(row: str) -> str | None:
     """Finds a phone number with regex from text"""
-    number_expression = "(\+?\(?[0-9-]+\)?(:?[x0-9-]+)?)"
-    match = search(row, number_expression)
+    number_expression = r"(\+?\(?[0-9-]+\)?(?:[x0-9-]+)?)"
+    match = search(number_expression, row)
     return match.group() if match is not None else None
 
 
