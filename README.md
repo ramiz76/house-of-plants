@@ -1,4 +1,4 @@
-# house-of-plants
+# House of Plants
 
 Monitoring the health of plants for Liverpool Natural History Museum
 
