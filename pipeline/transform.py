@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from os import remove
-from re import search, fullmatch
+from re import fullmatch
 
 from pandas import DataFrame
 import pandas as pd
@@ -98,14 +98,13 @@ def find_email(row: str) -> str | None:
         return
     email_expression = r"((?:(?:[a-z0-9_-]+\.)?)+[a-z0-9_-]+@[a-z0-9_-]+\.[a-z]+(?:\.[a-z]+)?)"
     match = fullmatch(email_expression, row)
-    print(match)
     return match.group() if match is not None else None
 
 
 def find_phone_number(row: str) -> str | None:
     """Finds a phone number with regex from text"""
     number_expression = r"(\+?\(?[0-9-]+\)?(?:[x0-9-]+)?)"
-    match = search(number_expression, row)
+    match = fullmatch(number_expression, row)
     return match.group() if match is not None else None
 
 
