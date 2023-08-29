@@ -3,7 +3,6 @@
 from datetime import datetime
 
 from pytest import fixture
-import pandas as pd
 from pandas import DataFrame
 
 from transform import remove_duplicate_plants, remove_comma
@@ -16,7 +15,7 @@ from transform import verifying_botanist_data, find_phone_number, find_email
 @fixture
 def duplicate_data() -> DataFrame:
     """Returns a data-frame with duplicate data"""
-    return pd.DataFrame(data=[[1,1],[1,2],[1,3]],
+    return DataFrame(data=[[1,1],[1,2],[1,3]],
         columns=["plant_name","test1"], index=[1,2,3])
 
 
@@ -82,4 +81,18 @@ def test_time_format_changed_correct():
     """Verifies datetype value is returned when time-string
     is in correct format"""
     time_string = "Tue, 29 Aug 2023 13:24:30 GMT"
-    assert isinstance(time_format_changed(time_string),datetime)
+    assert isinstance(time_format_changed(time_string), datetime)
+
+
+def test_find_phone_number_correct():
+    """Verifies None is returned when incorrectly
+    formatted phone number is entered"""
+    number = "I am a fake phone number"
+    assert find_phone_number(number) is None
+
+
+def test_find_phone_number_incorrect():
+    """Verifies that find_phone_number correctly
+    identifies an example phone-number"""
+    number = "001-630-832-2711x5822"
+    assert find_phone_number(number) == number
