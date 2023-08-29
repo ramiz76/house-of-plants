@@ -1,5 +1,7 @@
 """Tests for transform.py file"""
 
+from datetime import datetime
+
 from pytest import fixture
 import pandas as pd
 from pandas import DataFrame
@@ -59,7 +61,7 @@ def test_find_email_correct():
 
 
 def test_find_email_incorrect():
-    """Verifies email is not found in incorrect formatted email"""
+    """Verifies email is not found in incorrectly formatted email"""
     potential_email = "+++++@yahoo.com"
     assert find_email(potential_email) is None
 
@@ -68,3 +70,16 @@ def test_find_email_wront_type():
     """Verifies find_email function returns None
     with wrong type of value entered"""
     assert find_email([]) is None
+
+
+def test_time_format_changed_incorrect():
+    """Verifies None is returned when time-string is
+    in incorrect format"""
+    assert time_format_changed(None) is None
+
+
+def test_time_format_changed_correct():
+    """Verifies datetype value is returned when time-string
+    is in correct format"""
+    time_string = "Tue, 29 Aug 2023 13:24:30 GMT"
+    assert isinstance(time_format_changed(time_string),datetime)
