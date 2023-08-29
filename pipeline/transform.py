@@ -44,8 +44,19 @@ def correct_time_recorded(plant_data: DataFrame) -> tuple[DataFrame]:
     return plant_data, plant_errors
 
 
+def change_to_numeric(plant_data: DataFrame, columns: str) -> DataFrame:
+    """"""
+    for column in columns:
+        plant_data[column] = pd.to_numeric(plant_data[column], errors="coerce")
+        plant_data = plant_data.dropna(subset=[column])
+    return plant_data
+
+
 def removing_invalid_values(plant_data: DataFrame) -> DataFrame:
     """"""
+    columns_to_numeric = ["soil_moisture","temperature", "longitude", "latitude"]
+    plant_data = change_to_numeric(plant_data, columns_to_numeric)
+
     plant_data["soil_moisture"] = plant_data[plant_data["soil_moisture"] <= 100 |
                 plant_data["soil_moisture"] >= 0]
     plant_data["temperature"] = plant_data[plant_data["temperature"] >= -10 |
@@ -82,3 +93,4 @@ if __name__ == "__main__":
     # pd.concat([error_rows, plant_data]).reset_index()
     data = renaming_values(data)
     data = remove_duplicate_plants(data)
+    print(data)
