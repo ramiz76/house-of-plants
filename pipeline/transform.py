@@ -19,8 +19,7 @@ def time_format_changed(row: str) -> datetime | None:
     or None if None entered"""
     try:
         format = "%a, %d %b %Y %H:%M:%S %Z"
-        time = datetime.strptime(row, format)
-        return time
+        return datetime.strptime(row, format)
     except TypeError:
         return None
 
