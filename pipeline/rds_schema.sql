@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS plant;
 CREATE TABLE plant(
     plant_id INT GENERATED ALWAYS AS IDENTITY,
     origin_id INT,
-    api_id INT,
+    api_id INT UNIQUE,
     plant_name TEXT,
     scientific_name TEXT,
     cycle TEXT,
@@ -25,15 +25,15 @@ DROP TABLE IF EXISTS botanist;
 CREATE TABLE botanist(
     botanist_id INT GENERATED ALWAYS AS IDENTITY,
     name TEXT,
-    email TEXT,
-    phone INT,
+    email TEXT UNIQUE,
+    phone INT UNIQUE,
     PRIMARY KEY (botanist_id)
 );
 
 DROP TABLE IF EXISTS plant_availability;
 CREATE TABLE plant_availability(
     availability_id INT GENERATED ALWAYS AS IDENTITY,
-    type_of_availability TEXT,
+    type_of_availability TEXT UNIQUE,
     PRIMARY KEY (availability_id)
 );
 
