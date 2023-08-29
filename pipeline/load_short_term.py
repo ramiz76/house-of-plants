@@ -1,9 +1,9 @@
 """Retrieves cleaned data from transform, and inserts into a Postgres db
 This assumes the database already exists and has some initial data - see README / rds_schema.sql"""
 
-from dotenv import load_dotenv
 from os import environ
 
+from dotenv import load_dotenv
 import pandas as pd
 import psycopg2
 import psycopg2.extras
