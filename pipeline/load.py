@@ -2,7 +2,7 @@
 This assumes the database already exists and has some initial data - see README / rds_schema.sql"""
 
 from dotenv import load_dotenv
-import os
+from os import environ
 
 import pandas as pd
 import psycopg2
@@ -35,23 +35,28 @@ def insert_dataframe_into_database(dataframe: pd.DataFrame, connection: psycopg2
 
     with connection.cursor as cur:
         cur.executemany("SQL GOES HERE", dataframe.values.tolist())
+        connection.commit()
 
 
 if __name__ == "__main__":
 
-    load_dotenv()
-    config = {
-        "DATABASE_NAME": os.environ.get("DATABASE_NAME"),
-        "DATABASE_USERNAME": os.environ.get("DATABASE_USERNAME"),
-        "DATABASE_ENDPOINT": os.environ.get("DATABASE_ENDPOINT"),
-        "DATABASE_PASSWORD": os.environ.get("DATABASE_PASSWORD"),
+    try:
+        load_dotenv()
+        config = {
+            "DATABASE_NAME": environ.get("DATABASE_NAME"),
+            "DATABASE_USERNAME": environ.get("DATABASE_USERNAME"),
+            "DATABASE_ENDPOINT": environ.get("DATABASE_ENDPOINT"),
+            "DATABASE_PASSWORD": environ.get("DATABASE_PASSWORD")
+        }
 
-    }
+        conn = get_db_connection(config)
 
-    conn = get_db_connection(config)
+        plant_df = create_dataframe()
 
-    plant_df = create_dataframe()
+        insert_dataframe_into_database(plant_df, conn)
 
-    insert_dataframe_into_database(plant_df, conn)
+    except:
+        print("something went wrong")
 
-    conn.close()
+    finally:
+        conn.close()
