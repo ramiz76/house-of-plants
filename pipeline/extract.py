@@ -20,7 +20,7 @@ def get_relevant_plant_data() -> list[dict]:
 
     list_of_plants = []
 
-    for i in range(10):
+    for i in range(50):
 
         plant = get_plant_data_by_id(i)
 
