@@ -30,11 +30,11 @@ def create_dataframe(file_name: str = "plant_data.csv") -> pd.DataFrame:
     return plant_df
 
 
-def insert_dataframe_into_database(config: dict, dataframe: pd.DataFrame, conn: psycopg2.connection):
-    """Inserts the whole datarame into a db"""
+def insert_dataframe_into_database(dataframe: pd.DataFrame, connection: psycopg2.connection):
+    """Inserts the whole datarame into a postgres database"""
 
-    with conn.cursor as cur:
-        cur.executemany("SQL", dataframe.values.tolist())
+    with connection.cursor as cur:
+        cur.executemany("SQL GOES HERE", dataframe.values.tolist())
 
 
 if __name__ == "__main__":
@@ -52,6 +52,6 @@ if __name__ == "__main__":
 
     plant_df = create_dataframe()
 
-    insert_all_into_database
+    insert_dataframe_into_database(plant_df, conn)
 
     conn.close()
