@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS botanist;
 CREATE TABLE botanist(
     botanist_id INT GENERATED ALWAYS AS IDENTITY,
     name TEXT,
-    email TEXT UNIQUE,
+    email TEXT,
     phone TEXT UNIQUE,
     PRIMARY KEY (botanist_id)
 );
