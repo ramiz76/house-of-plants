@@ -27,7 +27,7 @@ def get_db_connection(config: dict) -> psycopg2.extensions.connection | None:
         raise psycopg2.DatabaseError("Error connecting to database.")
 
 
-def create_dataframe(file_name: str = "extracted_data/plant_data.csv") -> pd.DataFrame:
+def create_dataframe(file_name: str = "data/plant_data.csv") -> pd.DataFrame:
     """Returns the data from a file in a dataframe. Takes filename, or defaults to plant_data.csv"""
 
     plant_df = pd.read_csv(file_name)
