@@ -38,13 +38,13 @@ CREATE TABLE plant_availability(
 );
 
 -- Currently these are the only errors/availability results
+INSERT INTO plant_availability VALUES ('Available');
 INSERT INTO plant_availability VALUES ('plant on loan to another museum');
 INSERT INTO plant_availability VALUES ('plant not found');
 INSERT INTO plant_availability VALUES ('Timeout: The request could not be completed.');
 INSERT INTO plant_availability VALUES ('Missing field in data.');
 INSERT INTO plant_availability VALUES ('Missing soil_moisture reading.');
 INSERT INTO plant_availability VALUES ('Missing temperature reading.');
-INSERT INTO plant_availability VALUES ('Available');
 
 
 
