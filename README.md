@@ -20,10 +20,20 @@ As above with a few differences:
 - Use cron to run main.py / pipeline.py / sh script every minute
 - Run schema file to set up tables on cloud db
 
-## Assumptions we've made
+## Assumptions made
 
 - Sunlight refers to the level of sunlight the plant wants
 - Information about the plant itself is not expected to change
+- The following information will always exist (assumption made from manual tests):
+    - plant_name
+    - api_id
+    - longitude
+    - latitude
+    - country
+    - continent
+    - botanist_name
+    - email
+    - phone
 
 ### Extract
 
