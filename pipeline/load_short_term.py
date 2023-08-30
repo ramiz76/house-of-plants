@@ -48,11 +48,15 @@ def insert_dataframe_into_origin_table(connection: psycopg2.extensions.connectio
 def insert_dataframe_into_botanist_table(connection: psycopg2.extensions.connection, dataframe: pd.DataFrame) -> None:
     """Inserts botanist info from a dataframe into the postgres db"""
 
-    with connection:
-        with connection.cursor() as cur:
-            cur.executemany(
-                "INSERT INTO botanist (name, email, phone) VALUES (%s, %s, %s);", dataframe.values.tolist())
-            connection.commit()
+    for index, row in dataframe.iterrows():
+        try:
+            with connection:
+                with connection.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO botanist (name, email, phone) VALUES (%s, %s, %s);", row.to_list())
+                    connection.commit()
+        except Exception as e:
+            print(f"An exception occurred: {str(e)}")
 
 
 def add_origin_ids_to_plant_df(connection: psycopg2.extensions.connection, total_dataframe: pd.DataFrame, plant_dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -115,7 +119,8 @@ if __name__ == "__main__":
     }
 
     conn = get_db_connection(config)
-
-    load_all_data(conn)
+    full_df = create_dataframe()
+    botanist_df = full_df[["botanist_name", "email", "phone"]]
+    insert_dataframe_into_botanist_table(conn, botanist_df)
 
     conn.close()
