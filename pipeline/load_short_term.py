@@ -59,25 +59,26 @@ def add_origin_ids_to_plant_df(connection, total_dataframe: pd.DataFrame, plant_
     """Constructs list of origin ids based on plant data, 
     then given a plant dataframe, adds a new column with origin ids
     """
-
     origin_ids = []
-    new_df = plant_dataframe
 
-    with connection.cursor() as cur:
-        new_df["origin_id"] = cur.execute(
-            "SELECT origin_id FROM origin WHERE (longitude LIKE (%s) and latitude LIKE (%s));", (total_dataframe["longitude"], total_dataframe["latitude"]))
+    for index, row in total_dataframe.iterrows():
+        print(row)
+        with connection.cursor() as cur:
+            cur.execute(
+                "SELECT origin_id FROM origin WHERE (longitude = (%s) and latitude = (%s));", (row["longitude"], row["latitude"]))
+            current_origin_id = cur.fetchone()
+        origin_ids.append(current_origin_id["origin_id"])
 
-    return new_df
+    plant_dataframe["origin_id"] = origin_ids
+    return plant_dataframe
 
 
 def insert_dataframe_into_plant_table(connection, dataframe: pd.DataFrame):
     """Inserts plant info from a dataframe into the postgres db"""
     with connection:
         with connection.cursor() as cur:
-
-            cur.executemany("SELECT origin_id")
             cur.executemany(
-                "INSERT INTO plant (plant_name, scientific_name, cycle, sunlight, api_id) VALUES (%s, %s, %s, %s, %s, %s);", dataframe.values.tolist())
+                "INSERT INTO plant (plant_name, scientific_name, cycle, sunlight, api_id, origin_id) VALUES (%s, %s, %s, %s, %s, %s);", dataframe.values.tolist())
             connection.commit()
 
 
@@ -97,17 +98,16 @@ if __name__ == "__main__":
     full_df = create_dataframe()
     origin_df = full_df[["longitude", "latitude", "country", "continent"]]
     plant_df = full_df[["plant_name",
-                        "scientific_name", "cycle", "sunlight"]]
+                        "scientific_name", "cycle", "sunlight", "api_id"]]
 
     botanist_df = full_df[["botanist_name", "email", "phone"]]
+    insert_dataframe_into_origin_table(conn, origin_df)
 
     plant_df = add_origin_ids_to_plant_df(conn, full_df, plant_df)
 
-    print(full_df.columns)
+    print(plant_df.head(3))
 
-    print(origin_df.head())
-
-    print(add_origin_ids_to_plant_df(conn, full_df, plant_df))
+    insert_dataframe_into_plant_table(conn, plant_df)
     # except:
     #     print("something went wrong")
 
