@@ -23,9 +23,9 @@ def time_df() -> pd.DataFrame:
         columns=["recording_taken", "last_watered", "error"], index=[1, 2, 3, 4, 5, 6])
 
 
-def mock_multiprocessing():
+def mock_multiprocessing() -> MagicMock:
     """Function to mock multiprocessing"""
-    print(MagicMock().__class__)
+
     return MagicMock()
 
 
