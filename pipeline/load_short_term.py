@@ -105,7 +105,7 @@ def insert_dataframe_into_sensor_result_table(connection: psycopg2.extensions.co
     """
 
     for index, row in dataframe.iterrows():
-        print(row.values)
+
         with connection:
             with connection.cursor() as cur:
                 cur.execute(
@@ -212,10 +212,9 @@ def load_all_data(connection: psycopg2.extensions.connection) -> None:
     sensor_df = add_plant_ids_to_sensor_df(connection, full_df, sensor_df)
 
     # sensor_df = sensor_df.where(pd.notnull(sensor_df), None)
-    print(sensor_df.head())
+
     sensor_df = sensor_df.replace(np.nan, None)
-    print(sensor_df.dtypes)
-    print(sensor_df.head())
+
     insert_dataframe_into_sensor_result_table(connection, sensor_df)
 
 
