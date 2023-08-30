@@ -130,7 +130,10 @@ def verifying_botanist_data(plant_data: pd.DataFrame) -> pd.DataFrame:
     return plant_data
 
 
-if __name__ == "__main__":
+def pipeline_script() -> None:
+    """The main function connection all pipeline script"""
+
+    time_started = datetime.now()
     csv_filename = "extracted_data/plant_data.csv"
     data = pd.read_csv(csv_filename)
     data.set_index("api_id")
@@ -141,3 +144,5 @@ if __name__ == "__main__":
     data = pd.concat([error_rows, data])
     remove(csv_filename)
     data.to_csv(csv_filename)
+    time_finished = datetime.now()
+    print(f"Time took to process {time_finished - time_started}s")
