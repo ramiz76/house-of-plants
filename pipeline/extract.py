@@ -13,6 +13,7 @@ def get_plant_data_by_id(plant_id: int) -> dict:
     url = f"https://data-eng-plants-api.herokuapp.com/plants/{plant_id}"
     try:
         response = requests.get(url, timeout=5).json()
+
     except requests.exceptions.Timeout:
         response = {
             "error": "Timeout: The request could not be completed.", "plant_id": plant_id}
@@ -48,6 +49,7 @@ def get_relevant_plant_data() -> list[dict]:
     and returns list."""
 
     list_of_plants = []
+
     for i in range(51):
         plant = get_plant_data_by_id(i)
         if "error" not in plant.keys():
@@ -63,6 +65,7 @@ def get_relevant_plant_data() -> list[dict]:
             relevant_data = {
                 "api_id": plant["plant_id"], "error": plant["error"]}
         list_of_plants.append(relevant_data)
+
     return list_of_plants
 
 
