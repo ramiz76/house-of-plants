@@ -64,7 +64,6 @@ def change_to_numeric(plant_data: pd.DataFrame, columns: str) -> pd.DataFrame:
     for column in columns:
         plant_data[column] = pd.to_numeric(plant_data[column], errors="coerce")
         plant_data = plant_data.dropna(subset=[column])
-
     return plant_data
 
 
