@@ -10,9 +10,11 @@ import psycopg2.extras
 import psycopg2.extensions
 
 
-def get_db_connection(config: dict) -> psycopg2.extensions.connection:
-    """Attempts to connect to a postgres database using psycopg2
-    returning a connection object if successful"""
+def get_db_connection(config: dict) -> psycopg2.extensions.connection | None:
+    """
+    Attempts to connect to a postgres database using psycopg2
+    returning a connection object if successful
+    """
 
     try:
         return psycopg2.connect(dbname=config["DATABASE_NAME"],
@@ -38,7 +40,6 @@ def insert_dataframe_into_origin_table(connection: psycopg2.extensions.connectio
 
     with connection:
         with connection.cursor() as cur:
-
             cur.executemany(
                 "INSERT INTO origin (longitude, latitude, country, continent) VALUES (%s, %s, %s, %s);", dataframe.values.tolist())
             connection.commit()
@@ -55,13 +56,16 @@ def insert_dataframe_into_botanist_table(connection: psycopg2.extensions.connect
 
 
 def add_origin_ids_to_plant_df(connection: psycopg2.extensions.connection, total_dataframe: pd.DataFrame, plant_dataframe: pd.DataFrame) -> pd.DataFrame:
-    """Constructs list of origin ids based on plant data, 
+    """
+    Constructs list of origin ids based on plant data, 
     then given a plant dataframe, adds a new column with origin ids
     """
+
     origin_ids = []
 
     for index, row in total_dataframe.iterrows():
         print(row)
+
         with connection.cursor() as cur:
             cur.execute(
                 "SELECT origin_id FROM origin WHERE (longitude = (%s) and latitude = (%s));", (row["longitude"], row["latitude"]))
@@ -74,6 +78,7 @@ def add_origin_ids_to_plant_df(connection: psycopg2.extensions.connection, total
 
 def insert_dataframe_into_plant_table(connection: psycopg2.extensions.connection, dataframe: pd.DataFrame) -> None:
     """Inserts plant info from a dataframe into the postgres db"""
+
     with connection:
         with connection.cursor() as cur:
             cur.executemany(
@@ -83,6 +88,7 @@ def insert_dataframe_into_plant_table(connection: psycopg2.extensions.connection
 
 def load_all_data(connection: psycopg2.extensions.connection) -> None:
     """Given a db connection and csv file, inserts all data into the database"""
+
     full_df = create_dataframe()
     origin_df = full_df[["longitude", "latitude", "country", "continent"]]
     plant_df = full_df[["plant_name",
