@@ -38,21 +38,29 @@ def create_dataframe(file_name: str = "extracted_data/plant_data.csv") -> pd.Dat
 def insert_dataframe_into_origin_table(connection: psycopg2.extensions.connection, dataframe: pd.DataFrame) -> None:
     """Inserts origin info from a dataframe into the postgres db"""
 
-    with connection:
-        with connection.cursor() as cur:
-            cur.executemany(
-                "INSERT INTO origin (longitude, latitude, country, continent) VALUES (%s, %s, %s, %s);", dataframe.values.tolist())
-            connection.commit()
+    for index, row in dataframe.iterrows():
+        try:
+            with connection:
+                with connection.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO origin (longitude, latitude, country, continent) VALUES (%s, %s, %s, %s);", row.to_list())
+                    connection.commit()
+        except Exception as e:
+            print(f"An exception occurred: {str(e)}")
 
 
 def insert_dataframe_into_botanist_table(connection: psycopg2.extensions.connection, dataframe: pd.DataFrame) -> None:
     """Inserts botanist info from a dataframe into the postgres db"""
 
-    with connection:
-        with connection.cursor() as cur:
-            cur.executemany(
-                "INSERT INTO botanist (name, email, phone) VALUES (%s, %s, %s);", dataframe.values.tolist())
-            connection.commit()
+    for index, row in dataframe.iterrows():
+        try:
+            with connection:
+                with connection.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO botanist (name, email, phone) VALUES (%s, %s, %s);", row.to_list())
+                    connection.commit()
+        except Exception as e:
+            print(f"An exception occurred: {str(e)}")
 
 
 def add_origin_ids_to_plant_df(connection: psycopg2.extensions.connection, total_dataframe: pd.DataFrame, plant_dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -64,7 +72,6 @@ def add_origin_ids_to_plant_df(connection: psycopg2.extensions.connection, total
     origin_ids = []
 
     for index, row in total_dataframe.iterrows():
-        print(row)
 
         with connection.cursor() as cur:
             cur.execute(
@@ -79,11 +86,15 @@ def add_origin_ids_to_plant_df(connection: psycopg2.extensions.connection, total
 def insert_dataframe_into_plant_table(connection: psycopg2.extensions.connection, dataframe: pd.DataFrame) -> None:
     """Inserts plant info from a dataframe into the postgres db"""
 
-    with connection:
-        with connection.cursor() as cur:
-            cur.executemany(
-                "INSERT INTO plant (plant_name, scientific_name, cycle, sunlight, api_id, origin_id) VALUES (%s, %s, %s, %s, %s, %s);", dataframe.values.tolist())
-            connection.commit()
+    for index, row in dataframe.iterrows():
+        try:
+            with connection:
+                with connection.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO plant (plant_name, scientific_name, cycle, sunlight, api_id, origin_id) VALUES (%s, %s, %s, %s, %s, %s);", row.to_list())
+                    connection.commit()
+        except Exception as e:
+            print(f"An exception occurred: {str(e)}")
 
 
 def load_all_data(connection: psycopg2.extensions.connection) -> None:
