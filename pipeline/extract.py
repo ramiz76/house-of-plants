@@ -1,14 +1,18 @@
-"""Extracts all the plant data from plant 0 - 50 and adds to csv file."""
+"""Extracts all the plant data from plant 0 - 50 and adds to csv file"""
 
 import os
 import time
-import requests
+
 import pandas as pd
+import requests
+
+
+PLANTS_ON_DISPLAY = 50
 
 
 def get_plant_data_by_id(plant_id: int) -> dict:
     """Connects to a corresponding plant endpoint using the given id and return
-     a dict of all data for the plant."""
+     a dict of all data for the plant"""
 
     url = f"https://data-eng-plants-api.herokuapp.com/plants/{plant_id}"
     try:
@@ -21,7 +25,7 @@ def get_plant_data_by_id(plant_id: int) -> dict:
 
 
 def obtain_relevant_data(plant: dict) -> dict:
-    """Obtains only the relevant data from the plant api and returns as a dict."""
+    """Obtains only the relevant data from the plant api and returns as a dict"""
 
     try:
         relevant_data = {
@@ -46,11 +50,11 @@ def obtain_relevant_data(plant: dict) -> dict:
 
 def get_relevant_plant_data() -> list[dict]:
     """Connects to all the endpoints for plants 0 - 50 and adds all relevant data (dict) to a list
-    and returns list."""
+    and returns list"""
 
     list_of_plants = []
 
-    for i in range(51):
+    for i in range(PLANTS_ON_DISPLAY + 1):
         plant = get_plant_data_by_id(i)
         if "error" not in plant.keys():
             if plant["temperature"] is None:
@@ -70,7 +74,7 @@ def get_relevant_plant_data() -> list[dict]:
 
 
 def create_download_folders() -> None:
-    """Creates a folder with the name 'extracted_data' if it doesn't already exist."""
+    """Creates a folder with the name 'extracted_data' if it doesn't already exist"""
 
     folder_exists = os.path.exists('extracted_data')
     if not folder_exists:
@@ -78,7 +82,7 @@ def create_download_folders() -> None:
 
 
 def add_to_csv(list_of_plants: list[dict]):
-    """Takes a list of plants and add them to a csv file with a row for each plant."""
+    """Takes a list of plants and add them to a csv file with a row for each plant"""
 
     dataframe = pd.DataFrame(list_of_plants)
     csv_filename = "extracted_data/plant_data.csv"
