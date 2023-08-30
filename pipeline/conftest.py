@@ -25,11 +25,20 @@ def time_df() -> pd.DataFrame:
 
 def mock_multiprocessing():
     """Function to mock multiprocessing"""
-
+    print(MagicMock().__class__)
     return MagicMock()
 
 
-def mock_acquire_plant_data(*args):
+def mock_acquire_plant_data(*args) -> dict:
     """Function to mock acquire plant data"""
 
-    return {"test": True, "api_id": 2}
+    return {"test": True, "plant_id": 2, "temperature": None}
+
+
+@fixture
+def fake_plant_data() -> dict:
+    """Returns an example of a fake plant data"""
+
+    return {"name":"Fakium Plantious","plant_id":1,
+    "origin_location":["22.4711","88.1453","Pujali","IN","Asia/Kolkata"],
+    "botanist":{"name":"Fake Name","email":"@","phone":"09", "wrong":"data"}}
