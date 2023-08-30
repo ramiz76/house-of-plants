@@ -49,7 +49,7 @@ def correct_time_recorded(plant_data: pd.DataFrame) -> tuple[pd.DataFrame]:
     plant_data["last_watered"] = plant_data["last_watered"].apply(
         time_format_changed)
     plant_data["recording_taken"] = plant_data["recording_taken"].apply(lambda
-                                                                        row: missing_time_fixed(row, cache_dict))
+                                row: missing_time_fixed(row, cache_dict))
     plant_errors = plant_data[plant_data["error"].notnull()]
     plant_data = plant_data[~plant_data["error"].notnull()]
     plant_data = plant_data[plant_data["recording_taken"]
@@ -120,9 +120,9 @@ def find_email(row: str) -> str | None:
 def find_phone_number(row: str) -> str | None:
     """Finds a phone number with regex from text"""
 
-    number_expression = r"(\+?\(?[0-9-]+\)?(?:[x0-9-]+)?)"
+    number_expression = r"(\+?\(?[0-9-\.]+\)?(?:[x0-9-\.]+)?)"
     match = fullmatch(number_expression, row)
-    return match.group() if match is not None else None
+    return match.group().replace(".","-") if match is not None else None
 
 
 def verifying_botanist_data(plant_data: pd.DataFrame) -> pd.DataFrame:
@@ -138,6 +138,8 @@ def transform_script() -> None:
     """The main function connection all transform script"""
 
     time_started = datetime.now()
+    print("Transforming...")
+
     csv_filename = "extracted_data/plant_data.csv"
     data = pd.read_csv(csv_filename)
     data.set_index("api_id")
@@ -148,6 +150,7 @@ def transform_script() -> None:
     data = pd.concat([error_rows, data])
     remove(csv_filename)
     data.to_csv(csv_filename)
+
     time_finished = datetime.now()
-    print(
-        f"Total transformation time: {time_finished - time_started} seconds.")
+    print(f"Total transformation time: {time_finished - time_started} seconds.")
+transform_script()

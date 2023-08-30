@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS origin;
 CREATE TABLE origin(
     origin_id INT GENERATED ALWAYS AS IDENTITY,
-    longitude FLOAT,
-    latitude FLOAT,
+    longitude FLOAT UNIQUE,
+    latitude FLOAT UNIQUE,
     country TEXT,
     continent TEXT,
     PRIMARY KEY (origin_id)
@@ -25,8 +25,8 @@ DROP TABLE IF EXISTS botanist;
 CREATE TABLE botanist(
     botanist_id INT GENERATED ALWAYS AS IDENTITY,
     name TEXT,
-    email TEXT UNIQUE,
-    phone INT UNIQUE,
+    email TEXT,
+    phone TEXT UNIQUE,
     PRIMARY KEY (botanist_id)
 );
 
@@ -36,6 +36,17 @@ CREATE TABLE plant_availability(
     type_of_availability TEXT UNIQUE,
     PRIMARY KEY (availability_id)
 );
+
+-- Currently these are the only errors/availability results
+INSERT INTO plant_availability VALUES ('Available');
+INSERT INTO plant_availability VALUES ('plant on loan to another museum');
+INSERT INTO plant_availability VALUES ('plant not found');
+INSERT INTO plant_availability VALUES ('Timeout: The request could not be completed.');
+INSERT INTO plant_availability VALUES ('Missing field in data.');
+INSERT INTO plant_availability VALUES ('Missing soil_moisture reading.');
+INSERT INTO plant_availability VALUES ('Missing temperature reading.');
+
+
 
 DROP TABLE IF EXISTS sensor_result;
 CREATE TABLE sensor_result(
