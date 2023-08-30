@@ -32,4 +32,4 @@ def mock_multiprocessing():
 def mock_acquire_plant_data(*args):
     """Function to mock acquire plant data"""
 
-    return {"test": True}
+    return {"test": True, "api_id": 2}
