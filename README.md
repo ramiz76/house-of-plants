@@ -22,18 +22,19 @@ As above with a few differences:
 
 ## Assumptions made
 
+- No two plants have the same origin latitude but different longitude or vice versa (Using each as a unique constraint in the schema)
 - Sunlight refers to the level of sunlight the plant wants
 - Information about the plant itself is not expected to change
 - The following information will always exist (assumption made from manual tests):
-    - plant_name
-    - api_id
-    - longitude
-    - latitude
-    - country
-    - continent
-    - botanist_name
-    - email
-    - phone
+  - plant_name
+  - api_id
+  - longitude
+  - latitude
+  - country
+  - continent
+  - botanist_name
+  - email
+  - phone
 
 ### Extract
 
