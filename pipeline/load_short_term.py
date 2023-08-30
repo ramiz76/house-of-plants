@@ -49,7 +49,6 @@ def insert_dataframe_into_botanist_table(connection, dataframe: pd.DataFrame):
 
     with connection:
         with connection.cursor() as cur:
-
             cur.executemany(
                 "INSERT INTO botanist (name, email, phone) VALUES (%s, %s, %s);", dataframe.values.tolist())
             connection.commit()
