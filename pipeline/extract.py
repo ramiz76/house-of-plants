@@ -42,6 +42,7 @@ def obtain_relevant_data(plant: dict) -> dict:
             "botanist_name": plant["botanist"]["name"],
             "email": plant["botanist"]["email"], "phone": plant["botanist"]["phone"]
         }
+
     except:
         relevant_data = {
             "api_id": plant["plant_id"], "error": "Missing field in data."}
@@ -74,11 +75,11 @@ def get_relevant_plant_data() -> list[dict]:
 
 
 def create_download_folders() -> None:
-    """Creates a folder with the name 'extracted_data' if it doesn't already exist"""
+    """Creates a folder with the name "extracted_data" if it doesn't already exist"""
 
-    folder_exists = os.path.exists('extracted_data')
+    folder_exists = os.path.exists("extracted_data")
     if not folder_exists:
-        os.makedirs('extracted_data')
+        os.makedirs("extracted_data")
 
 
 def add_to_csv(list_of_plants: list[dict]):
@@ -89,15 +90,15 @@ def add_to_csv(list_of_plants: list[dict]):
     dataframe.to_csv(csv_filename, index=False)
 
 
-if __name__ == "__main__":
+def extract_and_create_csv():
 
     start_time = time.time()
-    print('Processing...')
+    print("Extracting...")
 
     plants = get_relevant_plant_data()
+    create_download_folders()
     add_to_csv(plants)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
-    print('Completed.')
-    print(f"Total execution time: {elapsed_time:.2f} seconds.")
+    print(f"Total extraction time: {elapsed_time:.2f} seconds.")
