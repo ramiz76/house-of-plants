@@ -17,7 +17,8 @@ def get_plant_data_by_id(plant_id: int) -> dict:
 
     url = f"https://data-eng-plants-api.herokuapp.com/plants/{plant_id}"
     try:
-        response = requests.get(url, timeout=5).json()
+        response = requests.get(url, timeout=5)
+        response = response.json()
 
     except requests.exceptions.Timeout:
         response = {
