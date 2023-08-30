@@ -25,19 +25,28 @@ As above with a few differences:
 - Sunlight refers to the level of sunlight the plant wants
 - Information about the plant itself is not expected to change
 - The following information will always exist (assumption made from manual tests):
-    - plant_name
-    - api_id
-    - longitude
-    - latitude
-    - country
-    - continent
-    - botanist_name
-    - email
-    - phone
+  - plant_name
+  - api_id
+  - longitude
+  - latitude
+  - country
+  - continent
+  - botanist_name
+  - email
+  - phone
 
 ### Extract
 
+The extract script extracts from the following URL : "https://data-eng-plants-api.herokuapp.com/plants/ID".
+It is assumed that there are only 50 plants and that no plants can be added.
+The extract script reaches every endpoint with the ID from 0 to 50.
+
+If the API returns a json response with an error, then the CSV file records that error.
+
 ### Transform
+
+**Phone Numbers**
+Assuming that the phone numbers extracted that contain '.' in the middle of the numbers are phone numbers and these dots are replaced with dashes.
 
 ### Load
 
