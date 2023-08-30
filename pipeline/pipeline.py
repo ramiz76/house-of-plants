@@ -1,6 +1,7 @@
 """Pipeline script that combines all the extract, transform and load scripts"""
 
 from os import environ
+
 from dotenv import load_dotenv
 
 from load_short_term import get_db_connection, load_all_data
