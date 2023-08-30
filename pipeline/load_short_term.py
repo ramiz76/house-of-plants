@@ -10,9 +10,11 @@ import psycopg2.extras
 import psycopg2.extensions
 
 
-def get_db_connection(config: dict) -> psycopg2.extensions.connection:
-    """Attempts to connect to a postgres database using psycopg2
-    returning a connection object if successful"""
+def get_db_connection(config: dict) -> psycopg2.extensions.connection | None:
+    """
+    Attempts to connect to a postgres database using psycopg2
+    returning a connection object if successful
+    """
 
     try:
         return psycopg2.connect(dbname=config["DATABASE_NAME"],
@@ -25,7 +27,7 @@ def get_db_connection(config: dict) -> psycopg2.extensions.connection:
         raise psycopg2.DatabaseError("Error connecting to database.")
 
 
-def create_dataframe(file_name: str = "plant_data.csv") -> pd.DataFrame:
+def create_dataframe(file_name: str = "extracted_data/plant_data.csv") -> pd.DataFrame:
     """Returns the data from a file in a dataframe. Takes filename, or defaults to plant_data.csv"""
 
     plant_df = pd.read_csv(file_name)
@@ -33,18 +35,17 @@ def create_dataframe(file_name: str = "plant_data.csv") -> pd.DataFrame:
     return plant_df
 
 
-def insert_dataframe_into_origin_table(connection, dataframe: pd.DataFrame):
+def insert_dataframe_into_origin_table(connection: psycopg2.extensions.connection, dataframe: pd.DataFrame) -> None:
     """Inserts origin info from a dataframe into the postgres db"""
 
     with connection:
         with connection.cursor() as cur:
-
             cur.executemany(
                 "INSERT INTO origin (longitude, latitude, country, continent) VALUES (%s, %s, %s, %s);", dataframe.values.tolist())
             connection.commit()
 
 
-def insert_dataframe_into_botanist_table(connection, dataframe: pd.DataFrame):
+def insert_dataframe_into_botanist_table(connection: psycopg2.extensions.connection, dataframe: pd.DataFrame) -> None:
     """Inserts botanist info from a dataframe into the postgres db"""
 
     with connection:
@@ -54,14 +55,17 @@ def insert_dataframe_into_botanist_table(connection, dataframe: pd.DataFrame):
             connection.commit()
 
 
-def add_origin_ids_to_plant_df(connection, total_dataframe: pd.DataFrame, plant_dataframe: pd.DataFrame) -> pd.DataFrame:
-    """Constructs list of origin ids based on plant data, 
+def add_origin_ids_to_plant_df(connection: psycopg2.extensions.connection, total_dataframe: pd.DataFrame, plant_dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Constructs list of origin ids based on plant data, 
     then given a plant dataframe, adds a new column with origin ids
     """
+
     origin_ids = []
 
     for index, row in total_dataframe.iterrows():
         print(row)
+
         with connection.cursor() as cur:
             cur.execute(
                 "SELECT origin_id FROM origin WHERE (longitude = (%s) and latitude = (%s));", (row["longitude"], row["latitude"]))
@@ -72,8 +76,9 @@ def add_origin_ids_to_plant_df(connection, total_dataframe: pd.DataFrame, plant_
     return plant_dataframe
 
 
-def insert_dataframe_into_plant_table(connection, dataframe: pd.DataFrame):
+def insert_dataframe_into_plant_table(connection: psycopg2.extensions.connection, dataframe: pd.DataFrame) -> None:
     """Inserts plant info from a dataframe into the postgres db"""
+
     with connection:
         with connection.cursor() as cur:
             cur.executemany(
@@ -81,9 +86,26 @@ def insert_dataframe_into_plant_table(connection, dataframe: pd.DataFrame):
             connection.commit()
 
 
+def load_all_data(connection: psycopg2.extensions.connection) -> None:
+    """Given a db connection and csv file, inserts all data into the database"""
+
+    full_df = create_dataframe()
+    origin_df = full_df[["longitude", "latitude", "country", "continent"]]
+    plant_df = full_df[["plant_name",
+                        "scientific_name", "cycle", "sunlight", "api_id"]]
+
+    botanist_df = full_df[["botanist_name", "email", "phone"]]
+
+    insert_dataframe_into_origin_table(connection, origin_df)
+    insert_dataframe_into_botanist_table(connection, botanist_df)
+
+    plant_df = add_origin_ids_to_plant_df(connection, full_df, plant_df)
+
+    insert_dataframe_into_plant_table(connection, plant_df)
+
+
 if __name__ == "__main__":
 
-    # try:
     load_dotenv()
     config = {
         "DATABASE_NAME": environ.get("DATABASE_NAME"),
@@ -94,21 +116,6 @@ if __name__ == "__main__":
 
     conn = get_db_connection(config)
 
-    full_df = create_dataframe()
-    origin_df = full_df[["longitude", "latitude", "country", "continent"]]
-    plant_df = full_df[["plant_name",
-                        "scientific_name", "cycle", "sunlight", "api_id"]]
+    load_all_data(conn)
 
-    botanist_df = full_df[["botanist_name", "email", "phone"]]
-    insert_dataframe_into_origin_table(conn, origin_df)
-
-    plant_df = add_origin_ids_to_plant_df(conn, full_df, plant_df)
-
-    print(plant_df.head(3))
-
-    insert_dataframe_into_plant_table(conn, plant_df)
-    # except:
-    #     print("something went wrong")
-
-    # finally:
     conn.close()
