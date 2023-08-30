@@ -49,7 +49,7 @@ def correct_time_recorded(plant_data: pd.DataFrame) -> tuple[pd.DataFrame]:
     plant_data["last_watered"] = plant_data["last_watered"].apply(
         time_format_changed)
     plant_data["recording_taken"] = plant_data["recording_taken"].apply(lambda
-                                                                        row: missing_time_fixed(row, cache_dict))
+                            row: missing_time_fixed(row, cache_dict))
     plant_errors = plant_data[plant_data["error"].notnull()]
     plant_data = plant_data[~plant_data["error"].notnull()]
     plant_data = plant_data[plant_data["recording_taken"]
