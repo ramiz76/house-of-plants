@@ -1,4 +1,10 @@
+DROP TABLE IF EXISTS sensor_result;
+DROP TABLE IF EXISTS plant;
 DROP TABLE IF EXISTS origin;
+DROP TABLE IF EXISTS botanist;
+DROP TABLE IF EXISTS plant_availability;
+
+
 CREATE TABLE origin(
     origin_id INT GENERATED ALWAYS AS IDENTITY,
     longitude FLOAT UNIQUE,
@@ -8,7 +14,7 @@ CREATE TABLE origin(
     PRIMARY KEY (origin_id)
 );
 
-DROP TABLE IF EXISTS plant;
+
 CREATE TABLE plant(
     plant_id INT GENERATED ALWAYS AS IDENTITY,
     origin_id INT,
@@ -21,7 +27,7 @@ CREATE TABLE plant(
     FOREIGN KEY (origin_id) REFERENCES origin(origin_id)
 );
 
-DROP TABLE IF EXISTS botanist;
+
 CREATE TABLE botanist(
     botanist_id INT GENERATED ALWAYS AS IDENTITY,
     name TEXT,
@@ -30,7 +36,7 @@ CREATE TABLE botanist(
     PRIMARY KEY (botanist_id)
 );
 
-DROP TABLE IF EXISTS plant_availability;
+
 CREATE TABLE plant_availability(
     availability_id INT GENERATED ALWAYS AS IDENTITY,
     type_of_availability TEXT UNIQUE,
@@ -38,17 +44,17 @@ CREATE TABLE plant_availability(
 );
 
 -- Currently these are the only errors/availability results
-INSERT INTO plant_availability VALUES ('Available');
-INSERT INTO plant_availability VALUES ('plant on loan to another museum');
-INSERT INTO plant_availability VALUES ('plant not found');
-INSERT INTO plant_availability VALUES ('Timeout: The request could not be completed.');
-INSERT INTO plant_availability VALUES ('Missing field in data.');
-INSERT INTO plant_availability VALUES ('Missing soil_moisture reading.');
-INSERT INTO plant_availability VALUES ('Missing temperature reading.');
+INSERT INTO plant_availability (type_of_availability) VALUES ('Available');
+INSERT INTO plant_availability (type_of_availability) VALUES ('plant on loan to another museum');
+INSERT INTO plant_availability (type_of_availability) VALUES ('plant not found');
+INSERT INTO plant_availability (type_of_availability) VALUES ('Timeout: The request could not be completed.');
+INSERT INTO plant_availability (type_of_availability) VALUES ('Missing field in data.');
+INSERT INTO plant_availability (type_of_availability) VALUES ('Missing soil_moisture reading.');
+INSERT INTO plant_availability (type_of_availability) VALUES ('Missing temperature reading.');
 
 
 
-DROP TABLE IF EXISTS sensor_result;
+
 CREATE TABLE sensor_result(
     result_id INT GENERATED ALWAYS AS IDENTITY,
     botanist_id INT,
