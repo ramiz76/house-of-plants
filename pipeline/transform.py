@@ -52,8 +52,6 @@ def correct_time_recorded(plant_data: pd.DataFrame) -> tuple[pd.DataFrame]:
     plant_errors = plant_data[plant_data["error"].notnull()]
     plant_data = plant_data[~plant_data["error"].notnull()]
     plant_data = plant_data[plant_data["recording_taken"] >= plant_data["last_watered"]]
-    print(plant_data)
-    plant_data.to_csv("test.csv")
     return plant_data, plant_errors
 
 
@@ -73,7 +71,6 @@ def removing_invalid_values(plant_data: pd.DataFrame) -> pd.DataFrame:
 
     columns_to_numeric = ["soil_moisture","temperature", "longitude", "latitude"]
     plant_data = change_to_numeric(plant_data, columns_to_numeric)
-
     plant_data["soil_moisture"] = plant_data[plant_data["soil_moisture"] <= 100 |
                 plant_data["soil_moisture"] >= 0]
     plant_data["temperature"] = plant_data[plant_data["temperature"] >= -10 |
