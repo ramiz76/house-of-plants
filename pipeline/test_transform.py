@@ -3,21 +3,13 @@
 from datetime import datetime
 
 import pandas as pd
-from pytest import fixture, raises
+from pytest import raises
 
 from transform import remove_duplicate_plants, remove_comma
 from transform import remove_formatting, removing_invalid_values
 from transform import renaming_values, time_format_changed, missing_time_fixed
 from transform import correct_time_recorded, change_to_numeric
 from transform import verifying_botanist_data, find_phone_number, find_email
-
-
-@fixture
-def duplicate_data() -> pd.DataFrame:
-    """Returns a data-frame with duplicate data"""
-
-    return pd.DataFrame(data=[["1", 1], ["1", 2], ["1", 3]], 
-        columns=["plant_name", "test1"], index=[1, 2, 3])
 
 
 def test_remove_duplicate_plants_data_removed(duplicate_data):
@@ -142,16 +134,6 @@ def test_missing_time_fixed_not_time():
 
     time = missing_time_fixed(None, {})
     assert not isinstance(time, datetime)
-
-
-@fixture
-def time_df() -> pd.DataFrame:
-    """Returns a testing data-frame with time-strings columns"""
-
-    data = [[f"2023-05-26 12:0{i}:34", f"Tue, 29 Jan 2023 13:2{i}:30 GMT", None] for i in range (5)]
-    data.append([None, None, "error found"])
-    return pd.DataFrame(data=data, 
-        columns=["recording_taken", "last_watered", "error"], index=[1, 2, 3, 4, 5, 6])
 
 
 def test_missing_time_fixed_wrong_type(time_df):
