@@ -24,7 +24,7 @@ def time_format_changed(row: str) -> datetime | None:
         return None
 
 
-def missing_time_fixed(row: str, cache: dict) -> datetime:
+def missing_time_fixed(row: str, cache: dict) -> datetime | None:
     """Changes recorded time to a value if None entered
     and always returns a datatype value"""
     try:
@@ -32,7 +32,9 @@ def missing_time_fixed(row: str, cache: dict) -> datetime:
         cache["last_time"] = time
         return time
     except TypeError:
-        return cache["last_time"]
+        if "last_time" in list(cache.keys()):
+            return cache["last_time"]
+        return None
 
 
 def correct_time_recorded(plant_data: DataFrame) -> tuple[DataFrame]:
