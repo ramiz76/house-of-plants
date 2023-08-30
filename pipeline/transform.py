@@ -46,12 +46,14 @@ def correct_time_recorded(plant_data: pd.DataFrame) -> tuple[pd.DataFrame]:
     data-frame object without errors in timestamps"""
 
     cache_dict = {}
-    plant_data["last_watered"] = plant_data["last_watered"].apply(time_format_changed)
+    plant_data["last_watered"] = plant_data["last_watered"].apply(
+        time_format_changed)
     plant_data["recording_taken"] = plant_data["recording_taken"].apply(lambda
-                        row: missing_time_fixed(row, cache_dict))
+                                                                        row: missing_time_fixed(row, cache_dict))
     plant_errors = plant_data[plant_data["error"].notnull()]
     plant_data = plant_data[~plant_data["error"].notnull()]
-    plant_data = plant_data[plant_data["recording_taken"] >= plant_data["last_watered"]]
+    plant_data = plant_data[plant_data["recording_taken"]
+                            >= plant_data["last_watered"]]
     return plant_data, plant_errors
 
 
@@ -69,12 +71,13 @@ def change_to_numeric(plant_data: pd.DataFrame, columns: str) -> pd.DataFrame:
 def removing_invalid_values(plant_data: pd.DataFrame) -> pd.DataFrame:
     """Returns a data-frame without invalid values in columns"""
 
-    columns_to_numeric = ["soil_moisture","temperature", "longitude", "latitude"]
+    columns_to_numeric = ["soil_moisture",
+                          "temperature", "longitude", "latitude"]
     plant_data = change_to_numeric(plant_data, columns_to_numeric)
     plant_data["soil_moisture"] = plant_data[plant_data["soil_moisture"] <= 100 |
-                plant_data["soil_moisture"] >= 0]
+                                             plant_data["soil_moisture"] >= 0]
     plant_data["temperature"] = plant_data[plant_data["temperature"] >= -10 |
-                            plant_data["temperature"] <= 39]
+                                           plant_data["temperature"] <= 39]
     return plant_data
 
 
@@ -99,7 +102,8 @@ def renaming_values(plant_data: pd.DataFrame) -> pd.DataFrame:
     """Beautifying values in cells and returns edited data-frame"""
 
     plant_data["plant_name"] = plant_data["plant_name"].apply(remove_comma)
-    plant_data["scientific_name"] = plant_data["scientific_name"].apply(remove_formatting)
+    plant_data["scientific_name"] = plant_data["scientific_name"].apply(
+        remove_formatting)
     return plant_data
 
 
@@ -126,12 +130,12 @@ def verifying_botanist_data(plant_data: pd.DataFrame) -> pd.DataFrame:
 
     plant_data["email"] = plant_data["email"].apply(find_email)
     plant_data["phone"] = plant_data["phone"].apply(lambda row:
-                find_phone_number if isinstance(row, str) else None)
+                                                    find_phone_number if isinstance(row, str) else None)
     return plant_data
 
 
-def pipeline_script() -> None:
-    """The main function connection all pipeline script"""
+def transform_script() -> None:
+    """The main function connection all transform script"""
 
     time_started = datetime.now()
     csv_filename = "extracted_data/plant_data.csv"
@@ -145,4 +149,5 @@ def pipeline_script() -> None:
     remove(csv_filename)
     data.to_csv(csv_filename)
     time_finished = datetime.now()
-    print(f"Time took to process {time_finished - time_started}s")
+    print(
+        f"Total transformation time: {time_finished - time_started} seconds.")
