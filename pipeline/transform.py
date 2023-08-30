@@ -129,7 +129,7 @@ def verifying_botanist_data(plant_data: pd.DataFrame) -> pd.DataFrame:
 
     plant_data["email"] = plant_data["email"].apply(find_email)
     plant_data["phone"] = plant_data["phone"].apply(
-        lambda row: find_phone_number() if isinstance(row, str) else None)
+        lambda row: find_phone_number(row) if isinstance(row, str) else None)
     return plant_data
 
 

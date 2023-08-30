@@ -4,6 +4,7 @@ This assumes the database already exists and has some initial data - see README 
 from os import environ, remove
 
 from dotenv import load_dotenv
+import numpy as np
 import pandas as pd
 import psycopg2
 import psycopg2.extras
@@ -45,8 +46,8 @@ def insert_dataframe_into_origin_table(connection: psycopg2.extensions.connectio
                     cur.execute(
                         "INSERT INTO origin (longitude, latitude, country, continent) VALUES (%s, %s, %s, %s);", row.to_list())
                     connection.commit()
-        except Exception as e:
-            print(f"An exception occurred: {str(e)}")
+        except:
+            pass
 
 
 def insert_dataframe_into_botanist_table(connection: psycopg2.extensions.connection, dataframe: pd.DataFrame) -> None:
@@ -59,8 +60,8 @@ def insert_dataframe_into_botanist_table(connection: psycopg2.extensions.connect
                     cur.execute(
                         "INSERT INTO botanist (name, email, phone) VALUES (%s, %s, %s);", row.to_list())
                     connection.commit()
-        except Exception as e:
-            print(f"An exception occurred: {str(e)}")
+        except:
+            pass
 
 
 def add_origin_ids_to_plant_df(connection: psycopg2.extensions.connection, total_dataframe: pd.DataFrame, plant_dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -93,8 +94,8 @@ def insert_dataframe_into_plant_table(connection: psycopg2.extensions.connection
                     cur.execute(
                         "INSERT INTO plant (plant_name, scientific_name, cycle, sunlight, api_id, origin_id) VALUES (%s, %s, %s, %s, %s, %s);", row.to_list())
                     connection.commit()
-        except Exception as e:
-            print(f"An exception occurred: {str(e)}")
+        except:
+            pass
 
 
 def insert_dataframe_into_sensor_result_table(connection: psycopg2.extensions.connection, dataframe: pd.DataFrame) -> None:
@@ -104,14 +105,12 @@ def insert_dataframe_into_sensor_result_table(connection: psycopg2.extensions.co
     """
 
     for index, row in dataframe.iterrows():
-        try:
-            with connection:
-                with connection.cursor() as cur:
-                    cur.execute(
-                        "INSERT INTO sensor_result (last_watered, soil_moisture, temperature, recording_taken, availability_id, botanist_id, plant_id) VALUES (%s, %s, %s, %s, %s, %s, %s);", row.to_list())
-                    connection.commit()
-        except:
-            pass
+        print(row.values)
+        with connection:
+            with connection.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO sensor_result (last_watered, soil_moisture, temperature, recording_taken, availability_id, botanist_id, plant_id) VALUES (%s, %s, %s, %s, %s, %s, %s);", row.to_list())
+                connection.commit()
 
 
 def add_availability_ids_to_sensor_df(connection: psycopg2.extensions.connection, total_dataframe: pd.DataFrame, sensor_dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -131,7 +130,8 @@ def add_availability_ids_to_sensor_df(connection: psycopg2.extensions.connection
         if current_availability_id is None:
             availability_ids.append(None)
         else:
-            availability_ids.append(current_availability_id["availability_id"])
+            availability_ids.append(
+                current_availability_id["availability_id"])
 
     sensor_dataframe["availability_id"] = availability_ids
     return sensor_dataframe
@@ -211,8 +211,10 @@ def load_all_data(connection: psycopg2.extensions.connection) -> None:
     sensor_df = add_botanist_ids_to_sensor_df(connection, full_df, sensor_df)
     sensor_df = add_plant_ids_to_sensor_df(connection, full_df, sensor_df)
 
-    sensor_df = sensor_df.where(pd.notnull(sensor_df), None)
-
+    # sensor_df = sensor_df.where(pd.notnull(sensor_df), None)
+    print(sensor_df.head())
+    sensor_df = sensor_df.replace(np.nan, None)
+    print(sensor_df.dtypes)
     print(sensor_df.head())
     insert_dataframe_into_sensor_result_table(connection, sensor_df)
 
