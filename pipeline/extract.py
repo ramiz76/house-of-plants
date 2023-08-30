@@ -1,17 +1,9 @@
 """Extracts all the plant data from plant 0 - 50 and adds to csv file."""
 
 import os
+import time
 import requests
 import pandas as pd
-
-
-class APIError(Exception):
-    """Describes an error triggered by a failing API call."""
-
-    def __init__(self, message: str, code: int = 500):
-        """Creates a new APIError instance."""
-        self.message = message
-        self.code = code
 
 
 def get_plant_data_by_id(plant_id: int) -> dict:
@@ -21,19 +13,13 @@ def get_plant_data_by_id(plant_id: int) -> dict:
     url = f"https://data-eng-plants-api.herokuapp.com/plants/{plant_id}"
 
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=5).json()
 
     except requests.exceptions.Timeout:
-        print("Timeout: The request could not be completed.")
+        response = {
+            "error": "Timeout: The request could not be completed.", "plant_id": plant_id}
 
-    if response.status_code == 200:
-        return response.json()
-
-    if response.status_code == 404:
-        raise APIError('Invalid Plant ID!', 404)
-
-    if response.status_code == 500:
-        raise APIError('Unable to connect to server.', 500)
+    return response
 
 
 def obtain_relevant_data(plant: dict) -> dict:
@@ -116,6 +102,13 @@ def add_to_csv(list_of_plants: list[dict]):
 
 if __name__ == "__main__":
 
-    plants = get_relevant_plant_data()
+    start_time = time.time()
+    print('Processing...')
 
+    plants = get_relevant_plant_data()
     add_to_csv(plants)
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print('Completed.')
+    print(f"Total execution time: {elapsed_time:.2f} seconds.")
