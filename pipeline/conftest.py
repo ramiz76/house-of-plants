@@ -2,6 +2,7 @@
 
 from pytest import fixture
 import pandas as pd
+from unittest.mock import MagicMock
 
 
 @fixture
@@ -20,3 +21,15 @@ def time_df() -> pd.DataFrame:
     data.append([None, None, "error found"])
     return pd.DataFrame(data=data, 
         columns=["recording_taken", "last_watered", "error"], index=[1, 2, 3, 4, 5, 6])
+
+
+def mock_multiprocessing():
+    """Function to mock multiprocessing"""
+
+    return MagicMock()
+
+
+def mock_acquire_plant_data(*args):
+    """Function to mock acquire plant data"""
+
+    return {"test": True, "api_id": 2}

@@ -48,8 +48,8 @@ def correct_time_recorded(plant_data: pd.DataFrame) -> tuple[pd.DataFrame]:
     cache_dict = {}
     plant_data["last_watered"] = plant_data["last_watered"].apply(
         time_format_changed)
-    plant_data["recording_taken"] = plant_data["recording_taken"].apply(lambda
-                                                                        row: missing_time_fixed(row, cache_dict))
+    plant_data["recording_taken"] = plant_data["recording_taken"].apply(lambda 
+                                      row: missing_time_fixed(row, cache_dict))
     plant_errors = plant_data[plant_data["error"].notnull()]
     plant_data = plant_data[~plant_data["error"].notnull()]
     plant_data = plant_data[plant_data["recording_taken"]
@@ -74,9 +74,9 @@ def removing_invalid_values(plant_data: pd.DataFrame) -> pd.DataFrame:
                           "temperature", "longitude", "latitude"]
     plant_data = change_to_numeric(plant_data, columns_to_numeric)
     plant_data["soil_moisture"] = plant_data[plant_data["soil_moisture"] <= 100 |
-                                             plant_data["soil_moisture"] >= 0]
+                plant_data["soil_moisture"] >= 0]
     plant_data["temperature"] = plant_data[plant_data["temperature"] >= -10 |
-                                           plant_data["temperature"] <= 39]
+                plant_data["temperature"] <= 39]
     return plant_data
 
 
@@ -139,7 +139,7 @@ def transform_script() -> None:
     time_started = datetime.now()
     print("Transforming...")
 
-    csv_filename = "extracted_data/plant_data.csv"
+    csv_filename = "data/plant_data.csv"
     data = pd.read_csv(csv_filename)
     data.set_index("api_id")
     data, error_rows = correct_time_recorded(data)
@@ -155,4 +155,3 @@ def transform_script() -> None:
         f"Total transformation time: {time_finished - time_started} seconds.")
 
 
-transform_script()
