@@ -49,7 +49,7 @@ def correct_time_recorded(plant_data: pd.DataFrame) -> tuple[pd.DataFrame]:
     plant_data["last_watered"] = plant_data["last_watered"].apply(
         time_format_changed)
     plant_data["recording_taken"] = plant_data["recording_taken"].apply(lambda
-                                row: missing_time_fixed(row, cache_dict))
+                                                                        row: missing_time_fixed(row, cache_dict))
     plant_errors = plant_data[plant_data["error"].notnull()]
     plant_data = plant_data[~plant_data["error"].notnull()]
     plant_data = plant_data[plant_data["recording_taken"]
@@ -121,7 +121,7 @@ def find_phone_number(row: str) -> str | None:
 
     number_expression = r"(\+?\(?[0-9-\.]+\)?(?:[x0-9-\.]+)?)"
     match = fullmatch(number_expression, row)
-    return match.group().replace(".","-") if match is not None else None
+    return match.group().replace(".", "-") if match is not None else None
 
 
 def verifying_botanist_data(plant_data: pd.DataFrame) -> pd.DataFrame:
@@ -129,7 +129,7 @@ def verifying_botanist_data(plant_data: pd.DataFrame) -> pd.DataFrame:
 
     plant_data["email"] = plant_data["email"].apply(find_email)
     plant_data["phone"] = plant_data["phone"].apply(
-        lambda row: find_phone_number if isinstance(row, str) else None)
+        lambda row: find_phone_number() if isinstance(row, str) else None)
     return plant_data
 
 
@@ -151,5 +151,8 @@ def transform_script() -> None:
     data.to_csv(csv_filename)
 
     time_finished = datetime.now()
-    print(f"Total transformation time: {time_finished - time_started} seconds.")
+    print(
+        f"Total transformation time: {time_finished - time_started} seconds.")
+
+
 transform_script()
