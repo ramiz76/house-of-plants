@@ -57,6 +57,7 @@ def retrieve_data_older_than_24_hours(conn):
         JOIN plant_availability av ON sr.availability_id = av.availability_id
         WHERE sr.recording_taken < {twenty_four_hours_ago}"""
 
+    with conn.cursor() as curr:
 
 def combine_csv_files():
 
