@@ -1,7 +1,7 @@
 """Retrieves cleaned data from transform, and inserts into a Postgres db
 This assumes the database already exists and has some initial data - see README / rds_schema.sql"""
 
-from os import environ, remove
+import os
 
 from dotenv import load_dotenv
 import numpy as np
@@ -33,7 +33,7 @@ def create_dataframe(file_name: str = "data/plant_data.csv") -> pd.DataFrame:
     """Returns the data from a file in a dataframe. Takes filename, or defaults to plant_data.csv"""
 
     plant_df = pd.read_csv(file_name)
-    remove(file_name)
+    os.remove(file_name)
     return plant_df
 
 
@@ -240,10 +240,10 @@ if __name__ == "__main__":
 
     load_dotenv()
     config = {
-        "DATABASE_NAME": environ.get("DATABASE_NAME"),
-        "DATABASE_USERNAME": environ.get("DATABASE_USERNAME"),
-        "DATABASE_ENDPOINT": environ.get("DATABASE_ENDPOINT"),
-        "DATABASE_PASSWORD": environ.get("DATABASE_PASSWORD")
+        "DATABASE_NAME": os.environ.get("DATABASE_NAME"),
+        "DATABASE_USERNAME": os.environ.get("DATABASE_USERNAME"),
+        "DATABASE_ENDPOINT": os.environ.get("DATABASE_ENDPOINT"),
+        "DATABASE_PASSWORD": os.environ.get("DATABASE_PASSWORD")
     }
 
     conn = get_db_connection(config)
