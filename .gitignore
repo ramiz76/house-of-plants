@@ -5,3 +5,8 @@ __pycache__
 .coverage*
 .DS_Store
 *.csv
+.terraform
+.terraform.lock.hcl
+terraform.tfvars
+terraform.tfstate
+terraform.tfstate.backup
