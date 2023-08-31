@@ -42,3 +42,59 @@ def fake_plant_data() -> dict:
     return {"name":"Fakium Plantious","plant_id":1,
     "origin_location":["22.4711","88.1453","Pujali","IN","Asia/Kolkata"],
     "botanist":{"name":"Fake Name","email":"@","phone":"09", "wrong":"data"}}
+
+
+@fixture
+def fake_dataframe() -> pd.DataFrame:
+    """Returns a test datafram"""
+
+    return pd.DataFrame([["test",2],["test2",1]],
+        columns = ["api_id", "plant_id"], index=[1,2])
+
+
+@fixture
+def fake_dataframe_2(fake_dataframe) -> pd.DataFrame:
+    """Returns a test datafram"""
+
+    fake_dataframe["plant_id"] = None
+    return fake_dataframe
+
+
+class FakeConn:
+    """Class for creating mock connections"""
+
+    def __enter__(self) -> 'FakeConn':
+        """Mocking opening with connection"""
+        return self
+
+    def __exit__(self, *args) -> None:
+        """Mocking closing with connection"""
+        pass
+
+    def cursor(self) -> 'FakeCursor':
+        """Fakes a cursor object"""
+        return FakeCursor()
+
+    def commit(self) -> None:
+        """Fakes connection commit"""
+        pass
+
+
+class FakeCursor:
+    """Class for mocking a cursor"""
+
+    def __enter__(self) -> 'FakeCursor':
+        """Mocking opening with cursor"""
+        return self
+
+    def __exit__(self, *args) -> None:
+        """Mocking closing with cursor"""
+        pass
+
+    def fetchone(self) -> None:
+        """Mocking items received from cursor execute"""
+        return None
+
+    def execute(self, *args) -> None:
+        """Mocking cursor.execute"""
+        print("Executed!")
