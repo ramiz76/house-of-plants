@@ -1,9 +1,8 @@
 """Tests for load_short_term.py file"""
 
-from pytest import raises
 from unittest.mock import MagicMock
 
-from conftest import FakeConn, FakeCursor
+from conftest import FakeConn
 from load_short_term import *
 
 
