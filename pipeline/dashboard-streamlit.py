@@ -59,12 +59,20 @@ def get_bucket_connection() -> BaseClient:
 #     print((all_watered_times_for_plants))
 #     for row in (all_watered_times_for_plants):
 #         print((row), row.index)
+def scatter_plot_title() -> None:
+    """Creates title for the scatter plot below"""
+
+    st.title("Soil Moisture by Plant")
+    st.markdown(
+        "### Displays the mean soil moisture level for a selection of plants")
 
 
 def display_average_soil_moisture(plant_data: pd.DataFrame, plants_to_display: list[str]) -> None:
     """Displays average soil moisture for selected plants"""
 
     plant_data = plant_data.copy()
+    plt.figure(figsize=(12, 8))
+
     chosen_plants = plant_data[plant_data["plant_name"].isin(
         plants_to_display)]
     each_plant_soil_moisture = chosen_plants.groupby(["plant_name"])[
@@ -79,13 +87,15 @@ def bar_chart_title() -> None:
     """Creates title for the bar chart below"""
 
     st.title("Number of errors for each plant")
-    st.markdown("### API ID refers to the API endpoint for each plant")
+    st.markdown("API ID refers to the API endpoint for each plant")
 
 
 def display_which_plants_get_errors(plant_data_errors: pd.DataFrame) -> None:
     """Displays bar-plot of errors by plant id"""
 
     plant_data_errors = plant_data_errors.copy()
+    plt.figure()
+
     each_plant_error = plant_data_errors.groupby(["api_id"], as_index=True)
     error_count = each_plant_error.count().reset_index()
     barplot_graph = sns.barplot(data=error_count, x="api_id", y="error")
@@ -102,15 +112,18 @@ def pie_chart_title() -> None:
 def display_pie_chart_continents(plant_data: pd.DataFrame) -> None:
     """Displays the pie-chart of continents for the plant origin
     that are displayed in the museum"""
+
     plant_data = plant_data.copy()
+
+    plt.figure()
+
     keys = plant_data["continent"].unique()
-    st.write(keys)
+
     unique_plants = remove_duplicate_plants(plant_data)
     plant_continents = unique_plants[["continent"]].value_counts()
 
     sns.color_palette("tab20")
-    plot = plant_continents.plot(kind="pie", y=keys,
-                                 autopct="%.2f")
+    plot = plant_continents.plot(kind="pie", y=keys, autopct="%.2f%%")
     st.write(plot.figure)
 
 
@@ -119,17 +132,20 @@ if __name__ == "__main__":
     # bucket = ""
     # all_items = get_items_in_buckets(s3_client, bucket)
     # download_new_files(s3_client, bucket, all_items)
-    dashboard_title()
-    plants = pd.read_csv("pipeline/combined.csv")
-    plant_errors = plants[plants["error"].notnull()]
-    plant_data = plants[~plants["error"].notnull()]
-    # display_frequency_plant_watering(plant_data)
-    plants_to_display = ["Epipremnum Aureum", "Venus flytrap", "Cactus"]
 
-    display_average_soil_moisture(plant_data, plants_to_display)
+    dashboard_title()
+    plant_df = pd.read_csv("pipeline/combined.csv")
+    plant_error_df = plant_df[plant_df["error"].notnull()]
+    plant_df = plant_df[~plant_df["error"].notnull()]
+    # display_frequency_plant_watering(plant_data)
+    plants_to_display = ["Epipremnum Aureum",
+                         "Venus flytrap", "Cactus", "Rafflesia arnoldii", "Corpse flower", "Wollemi pine"]
+
+    scatter_plot_title()
+    display_average_soil_moisture(plant_df, plants_to_display)
 
     bar_chart_title()
-    display_which_plants_get_errors(plant_errors)
+    display_which_plants_get_errors(plant_error_df)
 
     pie_chart_title()
-    display_pie_chart_continents(plant_data)
+    display_pie_chart_continents(plant_df)
