@@ -33,7 +33,7 @@ def create_dataframe(file_name: str = "data/plant_data.csv") -> pd.DataFrame:
     """Returns the data from a file in a dataframe. Takes filename, or defaults to plant_data.csv"""
 
     plant_df = pd.read_csv(file_name)
-    # remove(file_name) - deletes file to clean up
+    remove(file_name)
     return plant_df
 
 
