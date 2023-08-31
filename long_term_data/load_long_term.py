@@ -13,6 +13,10 @@ import psycopg2
 import psycopg2.extras
 import psycopg2.extensions
 
+COLUMNS = ['plant_name', 'scientific_name', 'api_id', 'cycle', 'last_watered', 'soil_moisture',
+           'temperature', 'sunlight', 'recording_taken', 'longitude', 'latitude', 'country',
+           'continent', 'botanist_name', 'email', 'phone', 'error']
+
 
 def get_short_term_db_connection(config: dict) -> psycopg2.extensions.connection | None:
     """
@@ -67,7 +71,8 @@ def retrieve_data_older_than_24_hours(connection: psycopg2.extensions.connection
         result = cur.fetchall()
         cur.execute(
             f"DELETE FROM sensor_result sr WHERE sr.recording_taken < '{formatted_time}'")
-    data = pd.DataFrame(result)
+
+    data = pd.DataFrame(result, columns=COLUMNS)
     data.to_csv("long_term_data/24_hour_data.csv", index=False)
 
 
@@ -92,10 +97,7 @@ def download_data_from_s3(current_s3: BaseClient) -> None:
             "BUCKET_NAME"), "long_term_data/full_s3_data.csv", download_path)
 
     except:
-        columns = ['plant_name', 'scientific_name', 'api_id', 'cycle', 'last_watered', 'soil_moisture',
-                   'temperature', 'sunlight', 'recording_taken', 'longitude', 'latitude', 'country',
-                   'continent', 'botanist_name', 'email', 'phone', 'error']
-        df = pd.DataFrame(columns=columns)
+        df = pd.DataFrame(columns=COLUMNS)
         df.to_csv("long_term_data/full_s3_data.csv", index=False)
 
 
