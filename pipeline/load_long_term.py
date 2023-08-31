@@ -4,6 +4,7 @@ and add this data to the longer term database"""
 from os import environ
 from datetime import datetime, timedelta
 
+import pandas as pd
 from dotenv import load_dotenv
 import psycopg2
 import psycopg2.extras
@@ -55,6 +56,19 @@ def retrieve_data_older_than_24_hours(conn):
         JOIN botanist b ON sr.botanist_id = b.botanist_id
         JOIN plant_availability av ON sr.availability_id = av.availability_id
         WHERE sr.recording_taken < {twenty_four_hours_ago}"""
+
+
+def combine_csv_files():
+
+    main_csv_dateframe = pd.read_csv('original_data/plant_data.csv')
+    new_csv_dateframe = pd.read_csv('24hr_data/plant_data1.csv')
+
+    combined_df = pd.concat(
+        [main_csv_dateframe, new_csv_dateframe], ignore_index=True)
+
+    combined_df = combined_df.drop(columns=['Unnamed: 0'])
+
+    combined_df.to_csv('combined.csv', index=False)
 
 
 if __name__ == "__main__":
