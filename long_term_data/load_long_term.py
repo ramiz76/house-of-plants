@@ -39,7 +39,7 @@ def retrieve_data_older_than_24_hours(connection: psycopg2.extensions.connection
     """Retrieves data older than 24hrs from the short term RDS database and stores as a CSV file
     and deletes data older than 24hrs from the RDS."""
 
-    twenty_four_hours_ago = datetime.now() - timedelta(hours=24)
+    twenty_four_hours_ago = datetime.now() - timedelta(hours=6)
     formatted_time = twenty_four_hours_ago.strftime("%Y-%m-%d %H:%M:%S")
     query_for_data = f"""SELECT
         p.plant_name as plant_name,
@@ -139,8 +139,12 @@ if __name__ == "__main__":
 
     create_download_folders()
     retrieve_data_older_than_24_hours(short_db_conn)
+    print("Data older than 24hrs retrieved.")
     current_s3 = client("s3", aws_access_key_id=environ.get("ACCESS_KEY_ID"),
                         aws_secret_access_key=environ.get("SECRET_ACCESS_KEY"))
     download_data_from_s3(current_s3)
+    print("Data from s3 bucket downloaded.")
     combine_csv_files()
+    print("Files combined.")
     upload_files_to_s3(current_s3)
+    print("File uploaded to S3.")
