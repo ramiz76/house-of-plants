@@ -127,6 +127,24 @@ def display_pie_chart_continents(plant_data: pd.DataFrame) -> None:
     st.write(plot.figure)
 
 
+def average_temp_title() -> None:
+    """Creates title text for the average temperature bar graph below"""
+
+    st.title("Average Temperature by region")
+    st.markdown(
+        "Displays the average temperature readings for plants native to different regions")
+
+
+def display_temp_bar_chart(plant_data: pd.DataFrame) -> None:
+    """Constructs a bar chart of average temperature, grouped by region"""
+
+    plant_data = plant_data.copy()
+
+    plt.figure()
+
+    st.dataframe(plant_data)
+
+
 if __name__ == "__main__":
     # s3_client = get_bucket_connection()
     # bucket = ""
@@ -135,8 +153,9 @@ if __name__ == "__main__":
 
     dashboard_title()
     plant_df = pd.read_csv("pipeline/combined.csv")
-    plant_error_df = plant_df[plant_df["error"].notnull()]
-    plant_df = plant_df[~plant_df["error"].notnull()]
+    plant_error_df = plant_df[plant_df["error"] != "No Error"]
+    plant_df = plant_df[plant_df["error"] == "No Error"]
+
     # display_frequency_plant_watering(plant_data)
     plants_to_display = ["Epipremnum Aureum",
                          "Venus flytrap", "Cactus", "Rafflesia arnoldii", "Corpse flower", "Wollemi pine"]
@@ -149,3 +168,6 @@ if __name__ == "__main__":
 
     pie_chart_title()
     display_pie_chart_continents(plant_df)
+
+    average_temp_title()
+    display_temp_bar_chart(plant_df)
