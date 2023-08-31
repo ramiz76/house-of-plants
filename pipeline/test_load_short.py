@@ -25,3 +25,17 @@ def test_add_plant_ids_to_sensor_df(fake_dataframe, fake_dataframe_2):
     assert returned_df.equals(fake_dataframe_2)
 
 
+def file_removed() -> None:
+    """Mocks file removal"""
+
+    print("File removed!")
+
+
+def test_create_dataframe(monkeypatch, fake_dataframe):
+    """"""
+
+    monkeypatch.setattr("pandas.read_csv", lambda *args: fake_dataframe)
+    monkeypatch.setattr("os.remove", lambda *args: file_removed)
+
+    returned_df = create_dataframe("file")
+    assert returned_df.equals(fake_dataframe)
