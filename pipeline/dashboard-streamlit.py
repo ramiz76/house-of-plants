@@ -142,7 +142,6 @@ def display_temp_bar_chart(plant_data: pd.DataFrame) -> None:
 
     plt.figure()
 
-    print(plant_data.head())
     st.dataframe(plant_data)
 
 
