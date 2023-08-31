@@ -5,8 +5,7 @@ from pytest import raises
 from unittest.mock import MagicMock
 
 from conftest import mock_multiprocessing, mock_acquire_plant_data
-from extract import acquire_plant_data, get_plant_data_by_id, obtain_relevant_data
-from extract import add_to_csv, create_download_folders, add_to_plant_data_list
+from extract import *
 
 
 def test_get_plant_data_by_id(monkeypatch):
@@ -22,10 +21,11 @@ def test_get_plant_data_by_id(monkeypatch):
 def test_add_to_csv(monkeypatch, capfd):
     """Verifies that new file is made from a data-frame"""
 
-    list_of_plants = [{"plant":"exists"}]
+    list_of_plants = [{"plant": "exists"}]
     dataframe = pd.DataFrame(list_of_plants)
     monkeypatch.setattr("pandas.DataFrame", lambda *args: dataframe)
-    monkeypatch.setattr(dataframe, "to_csv", lambda *args, **kwargs: print("File saved!"))
+    monkeypatch.setattr(dataframe, "to_csv", lambda *args,
+                        **kwargs: print("File saved!"))
     add_to_csv(list_of_plants)
     captured = capfd.readouterr()
 
@@ -58,7 +58,8 @@ def test_acquire_plant_data(monkeypatch):
     retrieved data"""
 
     assumed_result = {"api_id": 2, "error": "Missing temperature reading."}
-    monkeypatch.setattr("extract.get_plant_data_by_id", mock_acquire_plant_data)
+    monkeypatch.setattr("extract.get_plant_data_by_id",
+                        mock_acquire_plant_data)
     assert acquire_plant_data(1) == assumed_result
 
 
