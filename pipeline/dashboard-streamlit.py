@@ -6,10 +6,13 @@ from datetime import datetime, timezone, timedelta
 import streamlit as st
 import pandas as pd
 from pandas import DataFrame
+import matplotlib.pyplot as plt
 import seaborn as sns
 from dotenv import load_dotenv
 from boto3 import client
 from botocore.client import BaseClient
+
+from transform import remove_duplicate_plants
 
 
 TIME_NOW = datetime.now(timezone.utc)
@@ -61,12 +64,24 @@ def display_average_soil_moisture(plant_data: DataFrame, plants_to_display: list
 
 
 def display_which_plants_get_errors(plant_data_errors: DataFrame) -> None:
-    """Dosplays barplot of errors by plant id"""
+    """Displays bar-plot of errors by plant id"""
 
     each_plant_error = plant_data_errors.groupby(["api_id"], as_index=True)
     error_count = each_plant_error.count().reset_index()
     barplot_graph = sns.barplot(data=error_count, x="api_id", y="error")
     st.write(barplot_graph.figure)
+
+
+def display_pie_chart_continents(plant_data: DataFrame) -> None:
+    """Displays the pie-chart of continents for the plant origin
+    that are displayed in the museum"""
+
+    keys = plant_data["continent"].unique()
+    unique_plants = remove_duplicate_plants(plant_data)
+    plant_continents = unique_plants[["continent"]].value_counts()
+
+    continent_plant_pie_chart = plt.pie(plant_continents, labels=keys)
+    st.write(continent_plant_pie_chart.figure)
 
 
 if __name__ == "__main__":
@@ -79,5 +94,6 @@ if __name__ == "__main__":
     plant_data = plants[~plants["error"].notnull()]
     # display_frequency_plant_watering(plant_data)
     plants_to_display = ["Epipremnum Aureum","Venus flytrap","Cactus"]
-    display_average_soil_moisture(plant_data, plants_to_display)
-    display_which_plants_get_errors(plant_errors)
+    # display_average_soil_moisture(plant_data, plants_to_display)
+    # display_which_plants_get_errors(plant_errors)
+    display_pie_chart_continents(plant_data)
