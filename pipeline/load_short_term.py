@@ -48,9 +48,9 @@ def insert_dataframe_into_origin_table(connection: psycopg2.extensions.connectio
                         "INSERT INTO origin (longitude, latitude, country, continent) VALUES (%s, %s, %s, %s);", row.to_list())
                     connection.commit()
 
-        except psycopg2.errors.UniqueViolation as e:
+        except psycopg2.errors.UniqueViolation:
             continue  # We don't want duplicate values, but also don't want to crash
-        except:
+        except Exception as e:
             print("Unexpected Error Ocurred")
             print(e.args)
             print(str(e))
@@ -67,9 +67,9 @@ def insert_dataframe_into_botanist_table(connection: psycopg2.extensions.connect
                         "INSERT INTO botanist (name, email, phone) VALUES (%s, %s, %s);", row.to_list())
                     connection.commit()
 
-        except psycopg2.errors.UniqueViolation as e:
+        except psycopg2.errors.UniqueViolation:
             continue  # We don't want duplicate values, but also don't want to crash
-        except:
+        except Exception as e:
             print("Unexpected Error Ocurred")
             print(e.args)
             print(str(e))
@@ -106,9 +106,9 @@ def insert_dataframe_into_plant_table(connection: psycopg2.extensions.connection
                         "INSERT INTO plant (plant_name, scientific_name, cycle, sunlight, api_id, origin_id) VALUES (%s, %s, %s, %s, %s, %s);", row.to_list())
                     connection.commit()
 
-        except psycopg2.errors.UniqueViolation as e:
+        except psycopg2.errors.UniqueViolation:
             continue  # We don't want duplicate values, but also don't want to crash
-        except:
+        except Exception as e:
             print("Unexpected Error Ocurred")
             print(e.args)
             print(str(e))
