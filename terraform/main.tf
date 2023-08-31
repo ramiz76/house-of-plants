@@ -3,8 +3,12 @@ provider "aws" {
 }
 
 resource "aws_ecr_repository" "house-of-plants-ecr" {
-  name = "house-of-plants-ecr" #change this to be short term ecr 
+  name = "house-of-plants-ecr"
 }
+
+# resource "aws_ecr_repository" "house-of-plants-long-term-ecr" {
+#   name = "house-of-plants-long-term-ecr"
+# }
 
 
 resource "aws_security_group" "house-of-plants-rds-sg" {
@@ -46,12 +50,12 @@ resource "aws_db_instance" "house-of-plants-rds" {
 }
 
 
-resource "aws_s3_bucket" "house-of-plants-long-term-storage" {
-  bucket = "house-of-plants-long-term-storage"
-}
-
 resource "aws_ecs_cluster" "house-of-plants-cluster" {
   name = "house-of-plants-cluster"
+}
+
+resource "aws_s3_bucket" "house-of-plants-long-term-storage" {
+  bucket = "house-of-plants-long-term-storage"
 }
 
 
@@ -81,7 +85,7 @@ resource "aws_iam_role" "house-of-plants-ecs-execution-role" {
       {
         Action = "sts:AssumeRole"
         Effect = "Allow"
-        # Sid    = ""
+        Sid    = ""
         Principal = {
           Service = "ecs.amazonaws.com"
         }
@@ -113,69 +117,65 @@ resource "aws_iam_role" "house-of-plants-ecs-execution-role" {
   }
 }
 
-resource "aws_ecs_task_definition" "house-of-plants-short-pipeline-ecs"{
-    family = "house-of-plants-short-pipeline-def"
-    cpu = "1024"
-    network_mode = "awsvpc"
-    memory = "3072"
-    requires_compatibilities = ["FARGATE"]
-    execution_role_arn = aws_iam_role.house-of-plants-ecs-execution-role.arn
+# resource "aws_ecs_task_definition" "house-of-plants-short-pipeline-ecs"{
+#     family = "house-of-plants-short-pipeline-def"
+#     cpu = "1024"
+#     network_mode = "awsvpc"
+#     memory = "3072"
+#     requires_compatibilities = ["FARGATE"]
+#     execution_role_arn = aws_iam_role.house-of-plants-ecs-execution-role.arn
 
-    container_definitions= jsonencode([
-        {
-            "name": "house-of-plants-short-pipeline",
-            "image": "129033205317.dkr.ecr.eu-west-2.amazonaws.com/house-of-plants-ecr:latest",
-            "portMappings": [
-                {
-                    "name": "443-mapping",
-                    "cpu":0,
-                    "containerPort": 443,
-                    "hostPort": 443,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
-                },
-                {
-                    "name": "8501-mapping",
-                    "containerPort": 80,
-                    "hostPort": 80,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
-                }
-            ],
-            "essential": true,
-            "environment": [
-                {
-                    "name": "DATABASE_NAME",
-                    "value": var.DATABASE_NAME
-                },
-                {
-                    "name": "DATABASE_USERNAME",
-                    "value": var.DATABASE_USERNAME
-                },
-                {
-                    "name": "DATABASE_ENDPOINT",
-                    "value": aws_db_instance.house-of-plants-rds.endpoint
-                },
-                {
-                    "name": "DATABASE_PASSWORD",
-                    "value": var.DATABASE_PASSWORD
-                }],
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-create-group": "true",
-                    "awslogs-group": "/ecs/",
-                    "awslogs-region": "eu-west-2",
-                    "awslogs-stream-prefix": "ecs"
-                }
-            }
-        }
-    ])
-}
-
-
-
-
+#     container_definitions= jsonencode([
+#         {
+#             "name": "house-of-plants-short-pipeline",
+#             "image": "129033205317.dkr.ecr.eu-west-2.amazonaws.com/house-of-plants-ecr:latest",
+#             "portMappings": [
+#                 {
+#                     "name": "443-mapping",
+#                     "cpu":0,
+#                     "containerPort": 443,
+#                     "hostPort": 443,
+#                     "protocol": "tcp",
+#                     "appProtocol": "http"
+#                 },
+#                 {
+#                     "name": "8501-mapping",
+#                     "containerPort": 80,
+#                     "hostPort": 80,
+#                     "protocol": "tcp",
+#                     "appProtocol": "http"
+#                 }
+#             ],
+#             "essential": true,
+#             "environment": [
+#                 {
+#                     "name": "DATABASE_NAME",
+#                     "value": var.DATABASE_NAME
+#                 },
+#                 {
+#                     "name": "DATABASE_USERNAME",
+#                     "value": var.DATABASE_USERNAME
+#                 },
+#                 {
+#                     "name": "DATABASE_ENDPOINT",
+#                     "value": aws_db_instance.house-of-plants-rds.endpoint
+#                 },
+#                 {
+#                     "name": "DATABASE_PASSWORD",
+#                     "value": var.DATABASE_PASSWORD
+#                 }],
+#             "logConfiguration": {
+#                 "logDriver": "awslogs",
+#                 "options": {
+#                     "awslogs-create-group": "true",
+#                     "awslogs-group": "/ecs/",
+#                     "awslogs-region": "eu-west-2",
+#                     "awslogs-stream-prefix": "ecs"
+#                 }
+#             }
+#         }
+#     ])
+# }
 
 
 # resource "aws_ecs_task_definition" "house-of-plants-short-dashboard"{
@@ -188,8 +188,8 @@ resource "aws_ecs_task_definition" "house-of-plants-short-pipeline-ecs"{
 
 #     container_definitions= jsonencode([
 #         {
-#             "name": "short-term-dashboard", #fill this 
-#             "image": "to be determined", #fill this 
+#             "name": "short-term-dashboard",
+#             "image": "to be determined",
 #             "portMappings": [
 #                 {
 #                     "name": "short-term-dashboard-80-tcp",
