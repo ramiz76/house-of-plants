@@ -143,8 +143,14 @@ def add_availability_ids_to_sensor_df(connection: psycopg2.extensions.connection
                 "SELECT availability_id FROM plant_availability WHERE type_of_availability LIKE %s;", (str(row["error"]),))
             current_availability_id = cur.fetchone()
 
+        # The below section is not very clear, so to clarify what's happening here:
+        # If current_availability_id is None, that means there were no error messages from the API
+        # (This is because our SQL and csv column names have diverged a bit.)
+        # If there are no errors (the sensor worked fine), append 1 to the list.
+        # The schema is set up so that 1 is the key for No Error
+
         if current_availability_id is None:
-            availability_ids.append(None)
+            availability_ids.append(1)
         else:
             availability_ids.append(
                 current_availability_id["availability_id"])
