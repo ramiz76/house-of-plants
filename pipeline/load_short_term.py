@@ -72,6 +72,7 @@ def add_origin_ids_to_plant_df(connection: psycopg2.extensions.connection, total
     then given a plant dataframe, adds a new column with origin ids
     """
 
+    plant_dataframe = plant_dataframe.copy()
     origin_ids = []
 
     for index, row in total_dataframe.iterrows():
@@ -120,6 +121,7 @@ def add_availability_ids_to_sensor_df(connection: psycopg2.extensions.connection
     then given a sensor dataframe, adds a new column with availability ids
     """
 
+    sensor_dataframe = sensor_dataframe.copy()
     availability_ids = []
 
     for index, row in total_dataframe.iterrows():
@@ -144,6 +146,7 @@ def add_botanist_ids_to_sensor_df(connection: psycopg2.extensions.connection, to
     then given a sensor dataframe, adds a new column with botanist ids
     """
 
+    sensor_dataframe = sensor_dataframe.copy()
     botanist_ids = []
 
     for index, row in total_dataframe.iterrows():
@@ -167,6 +170,7 @@ def add_plant_ids_to_sensor_df(connection: psycopg2.extensions.connection, total
     then given a sensor dataframe, adds a new column with plant ids
     """
 
+    sensor_dataframe = sensor_dataframe.copy()
     plant_ids = []
 
     for index, row in total_dataframe.iterrows():
