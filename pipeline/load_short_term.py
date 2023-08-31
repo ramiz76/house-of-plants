@@ -49,7 +49,7 @@ def insert_dataframe_into_origin_table(connection: psycopg2.extensions.connectio
                     connection.commit()
 
         except psycopg2.errors.UniqueViolation as e:
-            pass  # We don't want duplicate values, but also don't want to crash
+            continue  # We don't want duplicate values, but also don't want to crash
         except:
             print("Unexpected Error Ocurred")
             print(e.args)
@@ -68,7 +68,7 @@ def insert_dataframe_into_botanist_table(connection: psycopg2.extensions.connect
                     connection.commit()
 
         except psycopg2.errors.UniqueViolation as e:
-            pass  # We don't want duplicate values, but also don't want to crash
+            continue  # We don't want duplicate values, but also don't want to crash
         except:
             print("Unexpected Error Ocurred")
             print(e.args)
@@ -107,7 +107,7 @@ def insert_dataframe_into_plant_table(connection: psycopg2.extensions.connection
                     connection.commit()
 
         except psycopg2.errors.UniqueViolation as e:
-            pass  # We don't want duplicate values, but also don't want to crash
+            continue  # We don't want duplicate values, but also don't want to crash
         except:
             print("Unexpected Error Ocurred")
             print(e.args)
