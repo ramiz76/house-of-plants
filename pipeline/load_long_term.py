@@ -1,6 +1,7 @@
 """Selects and deletes data older than 24hrs from the short term database
 and add this data to the longer term database"""
 
+import os
 from os import environ
 from datetime import datetime, timedelta
 
@@ -29,11 +30,12 @@ def get_short_term_db_connection(config: dict) -> psycopg2.extensions.connection
 
 
 def retrieve_data_older_than_24_hours(connection: psycopg2.extensions.connection) -> None:
-    """Retrieves data older than 24hrs from the short term RDS database and stores as a CSV file."""
+    """Retrieves data older than 24hrs from the short term RDS database and stores as a CSV file
+    and deletes data older than 24hrs from the RDS."""
 
-    twenty_four_hours_ago = datetime.now() - timedelta(hours=6)
+    twenty_four_hours_ago = datetime.now() - timedelta(hours=24)
     formatted_time = twenty_four_hours_ago.strftime('%Y-%m-%d %H:%M:%S')
-
+    print(formatted_time)
     query_for_data = f"""SELECT
         p.plant_name as plant_name,
         p.scientific_name as scientific_name,
@@ -62,9 +64,32 @@ def retrieve_data_older_than_24_hours(connection: psycopg2.extensions.connection
     with connection.cursor() as cur:
         cur.execute(query_for_data)
         result = cur.fetchall()
-
+        cur.execute(
+            f"DELETE FROM sensor_result sr WHERE sr.recording_taken < '{formatted_time}'")
     data = pd.DataFrame(result)
-    data.to_csv("24_hour_data", index=False)
+    data.to_csv("data/24_hour_data.csv", index=False)
+
+
+def create_download_folders() -> None:
+    """Creates a folder with the name 'long_term_data' if it doesn't already exist."""
+
+    folder_exists = os.path.exists('long_term_data')
+
+    if not folder_exists:
+        os.makedirs('long_term_data')
+
+
+def combine_csv_files():
+
+    main_csv_dateframe = pd.read_csv('data/full_s3_data.csv')
+    new_csv_dateframe = pd.read_csv('data/24_hour_data.csv')
+
+    combined_df = pd.concat(
+        [main_csv_dateframe, new_csv_dateframe], ignore_index=True)
+
+    combined_df = combined_df.drop(columns=['Unnamed: 0'])
+
+    combined_df.to_csv('full_s3_data.csv', index=False)
 
 
 if __name__ == "__main__":
