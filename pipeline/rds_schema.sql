@@ -44,7 +44,7 @@ CREATE TABLE plant_availability(
 );
 
 -- Currently these are the only errors/availability results
-INSERT INTO plant_availability (type_of_availability) VALUES ('None');
+INSERT INTO plant_availability (type_of_availability) VALUES ('No Error');
 INSERT INTO plant_availability (type_of_availability) VALUES ('plant on loan to another museum');
 INSERT INTO plant_availability (type_of_availability) VALUES ('plant not found');
 INSERT INTO plant_availability (type_of_availability) VALUES ('Timeout: The request could not be completed.');

@@ -144,7 +144,7 @@ def add_availability_ids_to_sensor_df(connection: psycopg2.extensions.connection
             current_availability_id = cur.fetchone()
 
         if current_availability_id is None:
-            availability_ids.append(None)
+            availability_ids.append(1)
         else:
             availability_ids.append(
                 current_availability_id["availability_id"])
