@@ -46,6 +46,7 @@ def insert_dataframe_into_origin_table(connection: psycopg2.extensions.connectio
                     cur.execute(
                         "INSERT INTO origin (longitude, latitude, country, continent) VALUES (%s, %s, %s, %s);", row.to_list())
                     connection.commit()
+
         except:
             pass
 
@@ -60,6 +61,7 @@ def insert_dataframe_into_botanist_table(connection: psycopg2.extensions.connect
                     cur.execute(
                         "INSERT INTO botanist (name, email, phone) VALUES (%s, %s, %s);", row.to_list())
                     connection.commit()
+
         except:
             pass
 
@@ -73,7 +75,6 @@ def add_origin_ids_to_plant_df(connection: psycopg2.extensions.connection, total
     origin_ids = []
 
     for index, row in total_dataframe.iterrows():
-
         with connection.cursor() as cur:
             cur.execute(
                 "SELECT origin_id FROM origin WHERE (longitude = (%s) and latitude = (%s));", (row["longitude"], row["latitude"]))
@@ -94,6 +95,7 @@ def insert_dataframe_into_plant_table(connection: psycopg2.extensions.connection
                     cur.execute(
                         "INSERT INTO plant (plant_name, scientific_name, cycle, sunlight, api_id, origin_id) VALUES (%s, %s, %s, %s, %s, %s);", row.to_list())
                     connection.commit()
+
         except:
             pass
 
@@ -105,7 +107,6 @@ def insert_dataframe_into_sensor_result_table(connection: psycopg2.extensions.co
     """
 
     for index, row in dataframe.iterrows():
-
         with connection:
             with connection.cursor() as cur:
                 cur.execute(
