@@ -46,7 +46,7 @@ def fake_plant_data() -> dict:
 
 @fixture
 def fake_dataframe() -> pd.DataFrame:
-    """Returns a test datafram"""
+    """Returns a test data-frame"""
 
     return pd.DataFrame([["test",2],["test2",1]],
         columns = ["api_id", "plant_id"], index=[1,2])
