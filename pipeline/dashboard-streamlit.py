@@ -17,6 +17,13 @@ from transform import remove_duplicate_plants
 TIME_NOW = datetime.now(timezone.utc)
 
 
+def dashboard_title() -> None:
+    """Creates title for Streamlit dashboard"""
+
+    st.title("House of Plants LMNH Long Term Data Visualisation")
+    st.markdown("_Data Visualisation of LMNH plants over time._")
+
+
 def get_items_in_buckets(s_three: BaseClient, bucket_name: str) -> list[tuple[str]]:
     """Function that finds the list of all items in the bucket"""
 
@@ -57,6 +64,7 @@ def get_bucket_connection() -> BaseClient:
 def display_average_soil_moisture(plant_data: pd.DataFrame, plants_to_display: list[str]) -> None:
     """Displays average soil moisture for selected plants"""
 
+    plant_data = plant_data.copy()
     chosen_plants = plant_data[plant_data["plant_name"].isin(
         plants_to_display)]
     each_plant_soil_moisture = chosen_plants.groupby(["plant_name"])[
@@ -67,25 +75,43 @@ def display_average_soil_moisture(plant_data: pd.DataFrame, plants_to_display: l
     st.write(scatterplot_graph.figure)
 
 
+def bar_chart_title() -> None:
+    """Creates title for the bar chart below"""
+
+    st.title("Number of errors for each plant")
+    st.markdown("### API ID refers to the API endpoint for each plant")
+
+
 def display_which_plants_get_errors(plant_data_errors: pd.DataFrame) -> None:
     """Displays bar-plot of errors by plant id"""
 
+    plant_data_errors = plant_data_errors.copy()
     each_plant_error = plant_data_errors.groupby(["api_id"], as_index=True)
     error_count = each_plant_error.count().reset_index()
     barplot_graph = sns.barplot(data=error_count, x="api_id", y="error")
     st.write(barplot_graph.figure)
 
 
+def pie_chart_title() -> None:
+    """Creates title for the pie chart below"""
+
+    st.title("Plants by Country")
+    st.markdown("")
+
+
 def display_pie_chart_continents(plant_data: pd.DataFrame) -> None:
     """Displays the pie-chart of continents for the plant origin
     that are displayed in the museum"""
-
+    plant_data = plant_data.copy()
     keys = plant_data["continent"].unique()
+    st.write(keys)
     unique_plants = remove_duplicate_plants(plant_data)
     plant_continents = unique_plants[["continent"]].value_counts()
 
-    continent_plant_pie_chart = plt.pie(plant_continents, labels=keys)
-    st.write(continent_plant_pie_chart.figure)
+    sns.color_palette("tab20")
+    plot = plant_continents.plot(kind="pie", y=keys,
+                                 autopct="%.2f")
+    st.write(plot.figure)
 
 
 if __name__ == "__main__":
@@ -93,11 +119,17 @@ if __name__ == "__main__":
     # bucket = ""
     # all_items = get_items_in_buckets(s3_client, bucket)
     # download_new_files(s3_client, bucket, all_items)
-    plants = pd.read_csv("combined.csv")
+    dashboard_title()
+    plants = pd.read_csv("pipeline/combined.csv")
     plant_errors = plants[plants["error"].notnull()]
     plant_data = plants[~plants["error"].notnull()]
     # display_frequency_plant_watering(plant_data)
     plants_to_display = ["Epipremnum Aureum", "Venus flytrap", "Cactus"]
-    # display_average_soil_moisture(plant_data, plants_to_display)
-    # display_which_plants_get_errors(plant_errors)
+
+    display_average_soil_moisture(plant_data, plants_to_display)
+
+    bar_chart_title()
+    display_which_plants_get_errors(plant_errors)
+
+    pie_chart_title()
     display_pie_chart_continents(plant_data)
