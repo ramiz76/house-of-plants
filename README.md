@@ -12,8 +12,11 @@ Monitoring the health of plants for Liverpool Natural History Museum
 ```
 DATABASE_NAME=<plants>
 DATABASE_USERNAME=<your username>
-DATABASE_ENDPOINT=localhost
+DATABASE_ENDPOINT=localhost | <AWS RDS endpoint address>
 DATABASE_PASSWORD=XXXXXXXXXXX
+ACCESS_KEY_ID=XXXXXXXXXXX
+SECRET_ACCESS_KEY=XXXXXXXXXXX
+BUCKET_NAME=<house-of-plants-long-term-storage>
 ```
 
 5. Create a local database with psql with the name you chose in your .env, e.g. plants.
