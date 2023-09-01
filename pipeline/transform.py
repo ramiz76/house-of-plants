@@ -49,7 +49,7 @@ def correct_time_recorded(plant_data: pd.DataFrame) -> tuple[pd.DataFrame]:
     plant_data["last_watered"] = plant_data["last_watered"].apply(
         time_format_changed)
     plant_data["recording_taken"] = plant_data["recording_taken"].apply(lambda
-                                  row: missing_time_fixed(row, cache_dict))
+                                                                        row: missing_time_fixed(row, cache_dict))
     plant_errors = plant_data[plant_data["error"].notnull()]
     plant_data = plant_data[~plant_data["error"].notnull()]
     plant_data = plant_data[plant_data["recording_taken"]
@@ -100,6 +100,7 @@ def remove_formatting(row: str) -> str:
 def renaming_values(plant_data: pd.DataFrame) -> pd.DataFrame:
     """Beautifying values in cells and returns edited data-frame"""
 
+    plant_data = plant_data.replace("Pacific", "America")
     plant_data["plant_name"] = plant_data["plant_name"].apply(remove_comma)
     plant_data["scientific_name"] = plant_data["scientific_name"].apply(
         remove_formatting)
