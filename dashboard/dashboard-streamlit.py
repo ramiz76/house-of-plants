@@ -16,7 +16,8 @@ TIME_NOW = datetime.now(timezone.utc)
 
 
 def remove_duplicate_plants(plant_data: pd.DataFrame) -> pd.DataFrame:
-    """Returns data-frame without duplicate plants - taken from transform.py"""
+"""Returns data-frame without duplicate plants - taken from transform.py"""
+
 
     plant_data.drop_duplicates(subset="plant_name", keep="first", inplace=True)
     return plant_data
@@ -129,9 +130,11 @@ def display_which_plants_get_errors(plant_data_errors: pd.DataFrame) -> None:
     """Displays bar-plot of errors by plant id"""
 
     plant_data_errors = plant_data_errors.copy()
+    st.write(plant_data_errors)
     plt.figure()
 
     each_plant_error = plant_data_errors.groupby(["api_id"], as_index=True)
+    st.write(each_plant_error)
     error_count = each_plant_error.count().reset_index()
     barplot_graph = sns.barplot(data=error_count, x="api_id", y="error")
     st.write(barplot_graph.figure)
@@ -165,19 +168,75 @@ def display_pie_chart_continents(plant_data: pd.DataFrame) -> None:
 def average_temp_title() -> None:
     """Creates title text for the average temperature bar graph below"""
 
-    st.title("Average Temperature by region")
+    st.title("Averages for Temperature by region")
     st.markdown(
-        "Displays the average temperature readings for plants native to different regions")
+        "Displays the Mean, Median and Standard Deviations of temperature readings for plants native to different regions")
 
 
-def display_temp_bar_chart(plant_data: pd.DataFrame) -> None:
-    """Constructs a bar chart of average temperature, grouped by region"""
+def mean_temp_title() -> None:
+    """Creates title text for the mean temperature bar graph below"""
+
+    st.markdown(
+        "## Mean temperature by region")
+
+
+def display_temp_mean_bar_chart(plant_data: pd.DataFrame) -> None:
+    """Constructs a bar chart of mean temperature, grouped by region"""
 
     plant_data = plant_data.copy()
 
     plt.figure()
 
-    st.dataframe(plant_data)
+    mean_temps = plant_data.groupby(["continent"], as_index=False)[
+        "temperature"].mean()
+
+    temp_bars = sns.barplot(mean_temps, x="continent", y="temperature")
+    plt.ylabel('mean temperature')
+    st.write(temp_bars.figure)
+
+
+def median_temp_title() -> None:
+    """Creates title text for the median temperature bar graph below"""
+
+    st.markdown(
+        "## Median temperature by region")
+
+
+def display_temp_median_bar_chart(plant_data: pd.DataFrame) -> None:
+    """Constructs a bar chart of mean temperature, grouped by region"""
+
+    plant_data = plant_data.copy()
+
+    plt.figure()
+
+    mean_temps = plant_data.groupby(["continent"], as_index=False)[
+        "temperature"].median()
+
+    temp_bars = sns.barplot(mean_temps, x="continent", y="temperature")
+    plt.ylabel('median temperature')
+    st.write(temp_bars.figure)
+
+
+def std_temp_title() -> None:
+    """Creates title text for the standard deviation temperature bar graph below"""
+
+    st.markdown(
+        "## Mean temperature by region")
+
+
+def display_temp_std_bar_chart(plant_data: pd.DataFrame) -> None:
+    """Constructs a bar chart of standard deviation temperature, grouped by region"""
+
+    plant_data = plant_data.copy()
+
+    plt.figure()
+
+    mean_temps = plant_data.groupby(["continent"], as_index=False)[
+        "temperature"].std()
+
+    temp_bars = sns.barplot(mean_temps, x="continent", y="temperature")
+    plt.ylabel('temperature standard deviation')
+    st.write(temp_bars.figure)
 
 
 if __name__ == "__main__":
@@ -187,8 +246,9 @@ if __name__ == "__main__":
     # download_new_files(s3_client, bucket, all_items)
 
     dashboard_title()
-    plant_df = pd.read_csv("pipeline/combined.csv")
+    plant_df = pd.read_csv("dashboard/combined.csv")
     plant_error_df = plant_df[plant_df["error"] != "No Error"]
+    st.write(plant_df)
     plant_df = plant_df[plant_df["error"] == "No Error"]
 
     # display_frequency_plant_watering(plant_data)
@@ -198,14 +258,29 @@ if __name__ == "__main__":
     scatter_plot_title()
     display_average_soil_moisture(plant_df, plants_to_display)
 
-    bar_chart_title()
-    display_which_plants_get_errors(plant_error_df)
+    # Breaks when we have no errors
+    # bar_chart_title()
+    # display_which_plants_get_errors(plant_error_df)
 
     pie_chart_title()
     display_pie_chart_continents(plant_df)
 
+    # Title for averages section
     average_temp_title()
-    display_temp_bar_chart(plant_df)
+
+    # Mean graph
+    mean_temp_title()
+    display_temp_mean_bar_chart(plant_df)
+
+    # Median graph
+    median_temp_title()
+    display_temp_median_bar_chart(plant_df)
+
+    # Standard Deviation graph
+    std_temp_title()
+    display_temp_std_bar_chart(plant_df)
+
 
     soil_over_time_for_each_plant_title()
     get_moisture_changes_by_time(plant_df, plants_to_display)
+
