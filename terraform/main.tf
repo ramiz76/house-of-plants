@@ -121,7 +121,7 @@ resource "aws_security_group" "house-of-plants-ecs-sg" {
 
 
 resource "aws_ecs_task_definition" "house-of-plants-short-pipeline-ecs" {
-  family                   = "house-of-plants-short-pipeline-def"
+  family                   = "house-of-plants-short-pipeline-definition"
   cpu                      = "1024"
   network_mode             = "awsvpc"
   memory                   = "3072"
@@ -162,7 +162,7 @@ resource "aws_ecs_task_definition" "house-of-plants-short-pipeline-ecs" {
         },
         {
           "name" : "DATABASE_ENDPOINT",
-          "value" : aws_db_instance.house-of-plants-rds.endpoint
+          "value" : aws_db_instance.house-of-plants-rds.address 
         },
         {
           "name" : "DATABASE_PASSWORD",
@@ -183,7 +183,7 @@ resource "aws_ecs_task_definition" "house-of-plants-short-pipeline-ecs" {
 
 
 resource "aws_ecs_task_definition" "house-of-plants-long-pipeline-ecs" {
-  family                   = "house-of-plants-long-pipeline-def"
+  family                   = "house-of-plants-long-pipeline-definition"
   cpu                      = "1024"
   network_mode             = "awsvpc"
   memory                   = "3072"
@@ -224,7 +224,7 @@ resource "aws_ecs_task_definition" "house-of-plants-long-pipeline-ecs" {
         },
         {
           "name" : "DATABASE_ENDPOINT",
-          "value" : aws_db_instance.house-of-plants-rds.endpoint
+          "value" : aws_db_instance.house-of-plants-rds.address
         },
         {
           "name" : "ACCESS_KEY_ID",
@@ -235,8 +235,8 @@ resource "aws_ecs_task_definition" "house-of-plants-long-pipeline-ecs" {
           "value" : var.SECRET_ACCESS_KEY
         },
         {
-          "name" : "S3_BUCKET",
-          "value" : var.S3_BUCKET
+          "name" : "BUCKET_NAME",
+          "value" : var.BUCKET_NAME
         },
         {
           "name" : "DATABASE_PASSWORD",
@@ -277,57 +277,57 @@ resource "aws_ecs_task_definition" "house-of-plants-long-pipeline-ecs" {
 # }
 
 
-resource "aws_scheduler_schedule" "house-of-plants-short-schedule" {
-  name       = "house-of-plants-short-schedule"
-  group_name = "default"
+# resource "aws_scheduler_schedule" "house-of-plants-short-schedule" {
+#   name       = "house-of-plants-short-schedule"
+#   group_name = "default"
 
-  flexible_time_window {
-    mode = "OFF"
-  }
+#   flexible_time_window {
+#     mode = "OFF"
+#   }
 
-  schedule_expression = "rate(1 minute)"
+#   schedule_expression = "cron(* * * * ? *)"
 
-  target {
-    arn      = aws_ecs_cluster.house-of-plants-cluster.arn
-    role_arn = "arn:aws:iam::129033205317:role/service-role/Amazon_EventBridge_Scheduler_ECS_3c99621ce2"
-    ecs_parameters {
-      task_definition_arn = aws_ecs_task_definition.house-of-plants-short-pipeline-ecs.arn
-      launch_type         = "FARGATE"
-      task_count          = 1
-      network_configuration {
-        assign_public_ip = true
-        subnets          = ["subnet-03b1a3e1075174995", "subnet-0667517a2a13e2a6b", "subnet-0cec5bdb9586ed3c4"]
-        security_groups  = [aws_security_group.house-of-plants-ecs-sg.id]
-      }
-    }
-  }
-}
+#   target {
+#     arn      = aws_ecs_cluster.house-of-plants-cluster.arn
+#     role_arn = "arn:aws:iam::129033205317:role/service-role/Amazon_EventBridge_Scheduler_ECS_2a4e2c83b1"
+#     ecs_parameters {
+#       task_definition_arn = aws_ecs_task_definition.house-of-plants-short-pipeline-ecs.arn
+#       launch_type         = "FARGATE"
+#       task_count          = 1
+#       network_configuration {
+#         assign_public_ip = true
+#         subnets          = ["subnet-03b1a3e1075174995", "subnet-0667517a2a13e2a6b", "subnet-0cec5bdb9586ed3c4"]
+#         security_groups  = [aws_security_group.house-of-plants-ecs-sg.id]
+#       }
+#     }
+#   }
+# }
 
-resource "aws_scheduler_schedule" "house-of-plants-long-schedule" {
-  name       = "house-of-plants-long-schedule"
-  group_name = "default"
+# resource "aws_scheduler_schedule" "house-of-plants-long-schedule" {
+#   name       = "house-of-plants-long-schedule"
+#   group_name = "default"
 
-  flexible_time_window {
-    mode = "OFF"
-  }
+#   flexible_time_window {
+#     mode = "OFF"
+#   }
 
-  schedule_expression = "rate(6 hours)"
+#   schedule_expression = "cron(0 */3 * * ? *)"
 
-  target {
-    arn      = aws_ecs_cluster.house-of-plants-cluster.arn
-    role_arn = "arn:aws:iam::129033205317:role/service-role/Amazon_EventBridge_Scheduler_ECS_3c99621ce2"
-    ecs_parameters {
-      task_definition_arn = aws_ecs_task_definition.house-of-plants-long-pipeline-ecs.arn
-      launch_type         = "FARGATE"
-      task_count          = 1
-      network_configuration {
-        assign_public_ip = true
-        subnets          = ["subnet-03b1a3e1075174995", "subnet-0667517a2a13e2a6b", "subnet-0cec5bdb9586ed3c4"]
-        security_groups  = [aws_security_group.house-of-plants-ecs-sg.id]
-      }
-    }
-  }
-}
+#   target {
+#     arn      = aws_ecs_cluster.house-of-plants-cluster.arn
+#     role_arn = "arn:aws:iam::129033205317:role/service-role/Amazon_EventBridge_Scheduler_ECS_2a4e2c83b1"
+#     ecs_parameters {
+#       task_definition_arn = aws_ecs_task_definition.house-of-plants-long-pipeline-ecs.arn
+#       launch_type         = "FARGATE"
+#       task_count          = 1
+#       network_configuration {
+#         assign_public_ip = true
+#         subnets          = ["subnet-03b1a3e1075174995", "subnet-0667517a2a13e2a6b", "subnet-0cec5bdb9586ed3c4"]
+#         security_groups  = [aws_security_group.house-of-plants-ecs-sg.id]
+#       }
+#     }
+#   }
+# }
 
 
 
@@ -384,7 +384,7 @@ resource "aws_scheduler_schedule" "house-of-plants-long-schedule" {
 #                 },
 #                 {
 #                     "name": "DATABASE_ENDPOINT",
-#                     "value": aws_db_instance.house-of-plants-short-term-rds.endpoint
+#                     "value": aws_db_instance.house-of-plants-short-term-rds.address
 #                 },
 #                 {
 #                     "name": "DATABASE_PASSWORD",

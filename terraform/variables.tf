@@ -29,7 +29,7 @@ variable "ACCESS_KEY_ID" {
 
 }
 
-variable "S3_BUCKET" {
+variable "BUCKET_NAME" {
   type = string
 
 }
