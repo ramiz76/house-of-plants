@@ -99,7 +99,7 @@ def soil_over_time_for_each_plant_title() -> None:
     """Creates title for the bar chart below"""
 
     st.title("Soil moisture changes recorded")
-    st.markdown("Chose the plants for this graph to display")
+    st.markdown("Choose the plants for this graph to display")
 
 
 def display_average_soil_moisture(plant_data: pd.DataFrame, plants_to_display: list[str]) -> None:
