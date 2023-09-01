@@ -1,6 +1,7 @@
 """Dashboard to display data from long term storage on S3"""
 
 from os import environ, path, remove
+from datetime import datetime, timedelta
 
 from boto3 import client
 from botocore.client import BaseClient
@@ -9,6 +10,21 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import streamlit as st
+
+
+@st.cache_data(ttl="30s")
+def fetch_data():
+    """Streamlit Cache"""
+
+    s3_client = get_bucket_connection()
+    bucket = environ.get("BUCKET_NAME")
+    items_in_bucket = get_items_in_buckets(s3_client, bucket)
+
+    if "full_s3_data.csv" in items_in_bucket:
+        download_new_version(s3_client, bucket)
+    st.session_state['last_fetch_time'] = datetime.now()
+    data = pd.read_csv("combined.csv")
+    return data
 
 
 def remove_duplicate_plants(plant_data: pd.DataFrame) -> pd.DataFrame:
@@ -28,11 +44,13 @@ def dashboard_title() -> None:
 def get_items_in_buckets(s_three: BaseClient, bucket_name: str) -> list[tuple[str]]:
     """Function that finds the list of all items in the bucket"""
 
-    return [obj["Key"] for obj in s_three.list_objects(Bucket=bucket_name)["Contents"]]
+    if "Contents" in list(s_three.list_objects(Bucket=bucket_name).keys()):
+        return [obj["Key"] for obj in s_three.list_objects(Bucket=bucket_name)["Contents"]]
+    return []
 
 
 def download_new_version(s_three: BaseClient, bucket_name: str) -> None:
-    """Downloading relevant data from the past 6 hrs"""
+    """Downloading relevant data from the S3 bucket"""
 
     filepath = "combined.csv"
     if path.exists(filepath):
@@ -224,20 +242,15 @@ def display_temp_std_bar_chart(plant_data: pd.DataFrame) -> None:
 
 
 if __name__ == "__main__":
-    s3_client = get_bucket_connection()
-    bucket = environ.get("BUCKET_NAME")
-    items_in_bucket = get_items_in_buckets(s3_client, bucket)
-    if "full_s3_data.csv" in items_in_bucket:
-        download_new_version(s3_client, bucket)
 
     dashboard_title()
-    plant_df = pd.read_csv("dashboard/combined.csv")
+    plant_df = fetch_data()
     plant_error_df = plant_df[plant_df["error"] != "No Error"]
 
     plant_df = plant_df[plant_df["error"] == "No Error"]
 
     plants_to_display = st.sidebar.multiselect("Select Plant(s) for the graphs",
-                options=plant_df["plant_name"].unique(), default=[1])
+                options=plant_df["plant_name"].unique(), default=plant_df["plant_name"].unique()[1])
 
     scatter_plot_title()
     display_average_soil_moisture(plant_df, plants_to_display)
