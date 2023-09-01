@@ -243,6 +243,7 @@ def display_temp_std_bar_chart(plant_data: pd.DataFrame) -> None:
 
 if __name__ == "__main__":
 
+    load_dotenv()
     dashboard_title()
     plant_df = fetch_data()
     plant_error_df = plant_df[plant_df["error"] != "No Error"]
