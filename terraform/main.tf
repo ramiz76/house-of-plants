@@ -10,6 +10,10 @@ resource "aws_ecr_repository" "house-of-plants-long-term-ecr" {
   name = "house-of-plants-long-term-ecr"
 }
 
+resource "aws_ecr_repository" "house-of-plants-long-dashboard-ecr" {
+  name = "house-of-plants-long-dashboard-ecr"
+}
+
 
 resource "aws_security_group" "house-of-plants-rds-sg" {
   name        = "house-of-plants-rds-sg"
@@ -77,47 +81,6 @@ resource "aws_security_group" "house-of-plants-ecs-sg" {
   }
 }
 
-# resource "aws_iam_role" "house-of-plants-ecs-execution-role" {
-#   name = "house-of-plants-ecs-execution-role"
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17",
-#     Statement = [
-#       {
-#         Action = "sts:AssumeRole",
-#         Effect = "Allow",
-#         Sid    = "",
-#         Principal = {
-#           Service = "ecs.amazonaws.com"
-#         }
-#       },
-
-#     ]
-#   })
-#   inline_policy {
-#     name = "ecs-task-inline-policy"
-#     policy = jsonencode({
-#       Version = "2012-10-17",
-#       Statement = [
-#         {
-#           Action   = "ecs:DescribeTaskDefinition",
-#           Effect   = "Allow",
-#           Resource = "*"
-#         },
-#         {
-#           Action   = "ecs:DescribeTasks",
-#           Effect   = "Allow",
-#           Resource = "*"
-#         },
-#         {
-#           Action   = "ecs:RunTask",
-#           Effect   = "Allow",
-#           Resource = "*"
-#         }
-#       ]
-#     })
-#   }
-# }
-
 
 
 resource "aws_ecs_task_definition" "house-of-plants-short-pipeline-ecs" {
@@ -162,7 +125,7 @@ resource "aws_ecs_task_definition" "house-of-plants-short-pipeline-ecs" {
         },
         {
           "name" : "DATABASE_ENDPOINT",
-          "value" : aws_db_instance.house-of-plants-rds.address 
+          "value" : aws_db_instance.house-of-plants-rds.address
         },
         {
           "name" : "DATABASE_PASSWORD",
@@ -256,6 +219,118 @@ resource "aws_ecs_task_definition" "house-of-plants-long-pipeline-ecs" {
 }
 
 
+resource "aws_ecs_task_definition" "house-of-plants-long-dashboard-ecs" {
+  family                   = "house-of-plants-long-dashboard-ecs"
+  cpu                      = "1024"
+  network_mode             = "awsvpc"
+  memory                   = "3072"
+  requires_compatibilities = ["FARGATE"]
+  task_role_arn            = "arn:aws:iam::129033205317:role/house-of-plants-dashboard-role"
+  execution_role_arn       = "arn:aws:iam::129033205317:role/ecsTaskExecutionRole"
+
+  container_definitions = jsonencode([
+    {
+      "name" : "house-of-plants-dashboard",
+      "image" : "129033205317.dkr.ecr.eu-west-2.amazonaws.com/house-of-plants-long-dashboard-ecr:latest",
+      "portMappings" : [
+        {
+          "name" : "8501-mapping",
+          "containerPort" : 8501,
+          "hostPort" : 8501,
+          "protocol" : "tcp",
+          "appProtocol" : "http"
+        },
+        {
+          "name" : "80-mapping",
+          "containerPort" : 80,
+          "hostPort" : 80,
+          "protocol" : "tcp",
+          "appProtocol" : "http"
+        }
+      ],
+      "essential" : true,
+      "environment" : [
+        {
+          "name" : "ACCESS_KEY_ID",
+          "value" : var.ACCESS_KEY_ID
+        },
+        {
+          "name" : "SECRET_ACCESS_KEY",
+          "value" : var.SECRET_ACCESS_KEY
+        },
+        {
+          "name" : "BUCKET_NAME",
+          "value" : var.BUCKET_NAME
+        }
+      ],
+      "logConfiguration" : {
+        "logDriver" : "awslogs",
+        "options" : {
+          "awslogs-create-group" : "true",
+          "awslogs-group" : "/ecs/",
+          "awslogs-region" : "eu-west-2",
+          "awslogs-stream-prefix" : "ecs"
+        }
+      }
+    }
+  ])
+}
+
+
+resource "aws_security_group" "house-of-plants-long-dashboard-sg" {
+  name   = "house-of-plants-long-dashboard-sg"
+  vpc_id = "vpc-0e0f897ec7ddc230d"
+  ingress {
+    from_port   = 8501
+    to_port     = 8501
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+
+  }
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+}
+
+resource "aws_ecs_service" "house-of-plants-long-dashboard-service" {
+  name            = "house-of-plants-long-dashboard-service"
+  cluster         = aws_ecs_cluster.house-of-plants-cluster.id
+  task_definition = aws_ecs_task_definition.house-of-plants-long-dashboard-ecs.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = ["subnet-03b1a3e1075174995", "subnet-0cec5bdb9586ed3c4", "subnet-0667517a2a13e2a6b"]
+    security_groups  = [aws_security_group.house-of-plants-long-dashboard-sg.id]
+    assign_public_ip = true
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -331,7 +406,46 @@ resource "aws_ecs_task_definition" "house-of-plants-long-pipeline-ecs" {
 
 
 
+# resource "aws_iam_role" "house-of-plants-ecs-execution-role" {
+#   name = "house-of-plants-ecs-execution-role"
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17",
+#     Statement = [
+#       {
+#         Action = "sts:AssumeRole",
+#         Effect = "Allow",
+#         Sid    = "",
+#         Principal = {
+#           Service = "ecs.amazonaws.com"
+#         }
+#       },
 
+#     ]
+#   })
+#   inline_policy {
+#     name = "ecs-task-inline-policy"
+#     policy = jsonencode({
+#       Version = "2012-10-17",
+#       Statement = [
+#         {
+#           Action   = "ecs:DescribeTaskDefinition",
+#           Effect   = "Allow",
+#           Resource = "*"
+#         },
+#         {
+#           Action   = "ecs:DescribeTasks",
+#           Effect   = "Allow",
+#           Resource = "*"
+#         },
+#         {
+#           Action   = "ecs:RunTask",
+#           Effect   = "Allow",
+#           Resource = "*"
+#         }
+#       ]
+#     })
+#   }
+# }
 
 
 
