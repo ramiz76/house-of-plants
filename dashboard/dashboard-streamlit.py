@@ -1,7 +1,6 @@
 """Dashboard to display data from long term storage on S3"""
 
-from os import environ
-from datetime import datetime, timezone, timedelta
+from os import environ, path, remove
 
 from boto3 import client
 from botocore.client import BaseClient
@@ -10,9 +9,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import streamlit as st
-
-
-TIME_NOW = datetime.now(timezone.utc)
 
 
 def remove_duplicate_plants(plant_data: pd.DataFrame) -> pd.DataFrame:
@@ -32,20 +28,16 @@ def dashboard_title() -> None:
 def get_items_in_buckets(s_three: BaseClient, bucket_name: str) -> list[tuple[str]]:
     """Function that finds the list of all items in the bucket"""
 
-    return [(obj["Key"], obj["LastModified"]) for obj
-            in s_three.list_objects(Bucket=bucket_name)["Contents"]]
+    return [obj["Key"] for obj in s_three.list_objects(Bucket=bucket_name)["Contents"]]
 
 
-def download_new_files(s_three: BaseClient, bucket_name: str, files: list[tuple[str]]) -> None:
+def download_new_version(s_three: BaseClient, bucket_name: str) -> None:
     """Downloading relevant data from the past 6 hrs"""
 
-    for file in files:
-        time = TIME_NOW - timedelta(hours=6)
-        if file[0][0:14] == "trucks/2023-8/" and file[1] > time:
-            time = "-".join([str(TIME_NOW.day),
-                            str(TIME_NOW.hour), str(TIME_NOW.minute)])
-            s_three.download_file(
-                bucket_name, file[0], f"./streamlit_data/{time}{file[0].split('/')[-1]}")
+    filepath = "combined.csv"
+    if path.exists(filepath):
+        remove(filepath)
+    s_three.download_file(bucket_name, "full_s3_data.csv", filepath)
 
 
 def get_bucket_connection() -> BaseClient:
@@ -54,16 +46,6 @@ def get_bucket_connection() -> BaseClient:
     load_dotenv()
     return client("s3", aws_access_key_id=environ.get("ACCESS_KEY"),
                   aws_secret_access_key=environ.get("SECRET_KEY"))
-
-
-# def display_frequency_plant_watering(plant_data: DataFrame):
-#     """"""
-
-#     each_plant_last_watered = plant_data.groupby(["plant_name"])["last_watered"]
-#     all_watered_times_for_plants = each_plant_last_watered.unique()
-#     print((all_watered_times_for_plants))
-#     for row in (all_watered_times_for_plants):
-#         print((row), row.index)
 
 
 def scatter_plot_title() -> None:
@@ -241,10 +223,11 @@ def display_temp_std_bar_chart(plant_data: pd.DataFrame) -> None:
 
 
 if __name__ == "__main__":
-    # s3_client = get_bucket_connection()
-    # bucket = ""
-    # all_items = get_items_in_buckets(s3_client, bucket)
-    # download_new_files(s3_client, bucket, all_items)
+    s3_client = get_bucket_connection()
+    bucket = environ.get("BUCKET_NAME")
+    items_in_bucket = get_items_in_buckets(s3_client, bucket)
+    if "full_s3_data.csv" in items_in_bucket:
+        download_new_version(s3_client, bucket)
 
     dashboard_title()
     plant_df = pd.read_csv("dashboard/combined.csv")
@@ -253,8 +236,9 @@ if __name__ == "__main__":
     plant_df = plant_df[plant_df["error"] == "No Error"]
 
     # display_frequency_plant_watering(plant_data)
-    plants_to_display = ["Epipremnum Aureum",
-                         "Venus flytrap", "Cactus", "Rafflesia arnoldii", "Corpse flower", "Wollemi pine"]
+
+    plants_to_display = st.sidebar.multiselect("Select Plant(s) for the graphs",
+                options=plant_df["plant_name"].unique(), default=[1])
 
     scatter_plot_title()
     display_average_soil_moisture(plant_df, plants_to_display)
@@ -281,5 +265,6 @@ if __name__ == "__main__":
     std_temp_title()
     display_temp_std_bar_chart(plant_df)
 
+    # Soil moisture changes over time graph
     soil_over_time_for_each_plant_title()
     get_moisture_changes_by_time(plant_df, plants_to_display)
