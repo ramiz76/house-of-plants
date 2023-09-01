@@ -59,12 +59,42 @@ def get_bucket_connection() -> BaseClient:
 #     print((all_watered_times_for_plants))
 #     for row in (all_watered_times_for_plants):
 #         print((row), row.index)
+
+
 def scatter_plot_title() -> None:
     """Creates title for the scatter plot below"""
 
     st.title("Soil Moisture by Plant")
     st.markdown(
         "### Displays the mean soil moisture level for a selection of plants")
+
+
+def get_moisture_changes_by_time(plant_data: pd.DataFrame, plants_to_display: list[str]) -> None:
+    """Displays data for chosen plants for moisture changes by time"""
+
+    plant_data["recording_taken"] = pd.to_datetime(plant_data["recording_taken"])
+    plant_data_lineplot = plant_data[plant_data["plant_name"].isin(
+        plants_to_display)][["plant_name","recording_taken","soil_moisture"]]
+    grouped_data = plant_data_lineplot.groupby("plant_name")
+
+    fig, axis = plt.subplots()
+
+    for plant, data in grouped_data:
+        sns.lineplot(data=data, y="soil_moisture", x="recording_taken", label=plant, ax=axis)
+
+    axis.set_title("Soil Moisture Over Time")
+    axis.set_xlabel("Recording Taken")
+    axis.set_ylabel("Soil Moisture")
+
+    axis.legend()
+    st.pyplot(fig)
+
+
+def soil_over_time_for_each_plant_title() -> None:
+    """Creates title for the bar chart below"""
+
+    st.title("Soil moisture changes recorded")
+    st.markdown("Chose the plants for this graph to display")
 
 
 def display_average_soil_moisture(plant_data: pd.DataFrame, plants_to_display: list[str]) -> None:
@@ -171,3 +201,6 @@ if __name__ == "__main__":
 
     average_temp_title()
     display_temp_bar_chart(plant_df)
+
+    soil_over_time_for_each_plant_title()
+    get_moisture_changes_by_time(plant_df, plants_to_display)
