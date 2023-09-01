@@ -113,3 +113,9 @@ to start streamlit dashboard. Ensure the streamlit script is targetting your lon
 Below are screenshots from our latest run of the long term load code.
 
 ![Screenshot of Streamlit Plants By Country](/screenshots/Streamlit_Plants_By_Country.png)
+
+![Screenshot of Streamlit Mean Temp By Country](/screenshots/Streamlit_Mean.png)
+
+![Screenshot of Streamlit Median Temp By Country](/screenshots/Streamlit_Median.png)
+
+![Screenshot of Streamlit Standard Deviation Temp By Country](/screenshots/Streamlit_Standard_Deviation.png)
