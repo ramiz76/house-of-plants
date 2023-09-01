@@ -88,9 +88,11 @@ This data remains on the database for roughly 24 hours before being pulled into 
 
 #### Long Term
 
-The long term load script runs every X hours, pulling all data older than 24 hours from the short term database (and deleting it there)
+The long term load script runs every 3 hours, pulling all data older than 24 hours from the short term database (and deleting it there).
 
 This data is appended to a csv file containing all data older than 24 hours, which is saved to an S3 bucket.
+
+Each time the script is run (using an EventBridge scheduler), the existing file is downloaded from the S3 bucket (if a file doesnt exist, a blank file is made), then this file is combined with the newly retrieved 24hr old data file. This new file then replaces the old file on the S3 bucket.
 
 ## Visualisations
 
