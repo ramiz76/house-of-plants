@@ -38,7 +38,7 @@ As above with a few differences:
 
 Star schema, with sensor_result as our fact table, storing each sensor reading from the API, and dimension tables containing info on plants and botanists from the museum.
 
-![Screenshot of Database Schema Diagram](Database_Schema_Screenshot.png)
+![Screenshot of Database Schema Diagram](/screenshots/Database_Schema_Screenshot.png)
 
 ## Assumptions Made
 
