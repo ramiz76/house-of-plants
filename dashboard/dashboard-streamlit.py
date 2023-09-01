@@ -16,8 +16,7 @@ TIME_NOW = datetime.now(timezone.utc)
 
 
 def remove_duplicate_plants(plant_data: pd.DataFrame) -> pd.DataFrame:
-"""Returns data-frame without duplicate plants - taken from transform.py"""
-
+    """Returns data-frame without duplicate plants - taken from transform.py"""
 
     plant_data.drop_duplicates(subset="plant_name", keep="first", inplace=True)
     return plant_data
@@ -78,15 +77,17 @@ def scatter_plot_title() -> None:
 def get_moisture_changes_by_time(plant_data: pd.DataFrame, plants_to_display: list[str]) -> None:
     """Displays data for chosen plants for moisture changes by time"""
 
-    plant_data["recording_taken"] = pd.to_datetime(plant_data["recording_taken"])
+    plant_data["recording_taken"] = pd.to_datetime(
+        plant_data["recording_taken"])
     plant_data_lineplot = plant_data[plant_data["plant_name"].isin(
-        plants_to_display)][["plant_name","recording_taken","soil_moisture"]]
+        plants_to_display)][["plant_name", "recording_taken", "soil_moisture"]]
     grouped_data = plant_data_lineplot.groupby("plant_name")
 
     fig, axis = plt.subplots()
 
     for plant, data in grouped_data:
-        sns.lineplot(data=data, y="soil_moisture", x="recording_taken", label=plant, ax=axis)
+        sns.lineplot(data=data, y="soil_moisture",
+                     x="recording_taken", label=plant, ax=axis)
 
     axis.set_title("Soil Moisture Over Time")
     axis.set_xlabel("Recording Taken")
@@ -280,7 +281,5 @@ if __name__ == "__main__":
     std_temp_title()
     display_temp_std_bar_chart(plant_df)
 
-
     soil_over_time_for_each_plant_title()
     get_moisture_changes_by_time(plant_df, plants_to_display)
-
