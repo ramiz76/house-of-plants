@@ -126,8 +126,7 @@ def display_which_plants_get_errors(plant_data_errors: pd.DataFrame) -> None:
 def pie_chart_title() -> None:
     """Creates title for the pie chart below"""
 
-    st.title("Plants by Country")
-    st.markdown("")
+    st.markdown("## Plants by Country")
 
 
 def display_pie_chart_continents(plant_data: pd.DataFrame) -> None:
@@ -151,9 +150,11 @@ def display_pie_chart_continents(plant_data: pd.DataFrame) -> None:
 def average_temp_title() -> None:
     """Creates title text for the average temperature bar graph below"""
 
-    st.title("Averages for Temperature by region")
+    st.title("Plants by region - Temperature Averages")
     st.markdown(
-        "Displays the Mean, Median and Standard Deviations of temperature readings for plants native to different regions")
+        "Displays the Mean, Median and Standard Deviations of temperature\
+              readings for plants native to different regions, as well as\
+                  breakdown of percentage of plants from each region")
 
 
 def mean_temp_title() -> None:
@@ -204,7 +205,7 @@ def std_temp_title() -> None:
     """Creates title text for the standard deviation temperature bar graph below"""
 
     st.markdown(
-        "## Mean temperature by region")
+        "## Standard Deviation temperature by region")
 
 
 def display_temp_std_bar_chart(plant_data: pd.DataFrame) -> None:
@@ -232,7 +233,7 @@ if __name__ == "__main__":
     dashboard_title()
     plant_df = pd.read_csv("dashboard/combined.csv")
     plant_error_df = plant_df[plant_df["error"] != "No Error"]
-    st.write(plant_df)
+
     plant_df = plant_df[plant_df["error"] == "No Error"]
 
     plants_to_display = st.sidebar.multiselect("Select Plant(s) for the graphs",
@@ -245,23 +246,22 @@ if __name__ == "__main__":
     # bar_chart_title()
     # display_which_plants_get_errors(plant_error_df)
 
-    pie_chart_title()
-    display_pie_chart_continents(plant_df)
-
     # Title for averages section
     average_temp_title()
+    r, l = st.columns(2)
+    with r:
+        pie_chart_title()
+        display_pie_chart_continents(plant_df)
 
-    # Mean graph
-    mean_temp_title()
-    display_temp_mean_bar_chart(plant_df)
+        mean_temp_title()
+        display_temp_mean_bar_chart(plant_df)
 
-    # Median graph
-    median_temp_title()
-    display_temp_median_bar_chart(plant_df)
+    with l:
+        median_temp_title()
+        display_temp_median_bar_chart(plant_df)
 
-    # Standard Deviation graph
-    std_temp_title()
-    display_temp_std_bar_chart(plant_df)
+        std_temp_title()
+        display_temp_std_bar_chart(plant_df)
 
     # Soil moisture changes over time graph
     soil_over_time_for_each_plant_title()
