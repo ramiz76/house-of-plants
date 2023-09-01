@@ -73,9 +73,9 @@ def removing_invalid_values(plant_data: pd.DataFrame) -> pd.DataFrame:
     columns_to_numeric = ["soil_moisture",
                           "temperature", "longitude", "latitude"]
     plant_data = change_to_numeric(plant_data, columns_to_numeric)
-    plant_data["soil_moisture"] = plant_data[plant_data["soil_moisture"] <= 100 |
+    plant_data["soil_moisture"] = plant_data[plant_data["soil_moisture"] <= 100 &
                                              plant_data["soil_moisture"] >= 0]
-    plant_data["temperature"] = plant_data[plant_data["temperature"] >= -10 |
+    plant_data["temperature"] = plant_data[plant_data["temperature"] >= -10 &
                                            plant_data["temperature"] <= 39]
     return plant_data
 
