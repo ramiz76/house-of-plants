@@ -41,7 +41,7 @@ As above with a few differences:
 
 Star schema, with sensor_result as our fact table, storing each sensor reading from the API, and dimension tables containing info on plants and botanists from the museum.
 
-![Screenshot of Database Schema Diagram](/screenshots/Database_Schema_Screenshot.png)
+<img src="/screenshots/Database_Schema_Screenshot.png" width="900" height="500" alt="Screenshot of Database Schema Diagram">
 
 ## Assumptions Made
 
@@ -111,11 +111,12 @@ streamlit run dasboard-streamlit.py
 to start streamlit dashboard. Ensure the streamlit script is targetting your long term data file, either on the s3 bucket or a version of it you've downloaded.
 
 Below are screenshots from our latest run of the long term load code.
+Plants By Country          |  Standard Deviation Temp By Country
+:-------------------------:|:-------------------------:
+<img src="/screenshots/Streamlit_Plants_By_Country.jpg" width="500" height="300" alt="Screenshot of Streamlit Plants By Country">  |  <img src="/screenshots/Streamlit_Standard_Deviation.png" width="500" height="300" alt="Screenshot of Streamlit Standard Deviation Temp By Country">
 
-![Screenshot of Streamlit Plants By Country](/screenshots/Streamlit_Plants_By_Country.jpg)
 
-![Screenshot of Streamlit Mean Temp By Country](/screenshots/Streamlit_Mean.png)
+Mean Temp By Country       |  Median Temp By Country
+:-------------------------:|:-------------------------:
+<img src="/screenshots/Streamlit_Mean.png" width="500" height="300" alt="Screenshot of Streamlit Mean Temp By Country">  |  <img src="/screenshots/Streamlit_Median.png" width="500" height="300" alt="Screenshot of Streamlit Median Temp By Country">
 
-![Screenshot of Streamlit Median Temp By Country](/screenshots/Streamlit_Median.png)
-
-![Screenshot of Streamlit Standard Deviation Temp By Country](/screenshots/Streamlit_Standard_Deviation.png)
