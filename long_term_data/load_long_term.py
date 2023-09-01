@@ -61,10 +61,10 @@ def retrieve_data_older_than_24_hours(connection: psycopg2.extensions.connection
         b.phone as phone,
         av.type_of_availability AS error
         FROM sensor_result sr
-        JOIN plant p ON sr.plant_id = p.plant_id
-        JOIN origin o ON p.origin_id = o.origin_id
-        JOIN botanist b ON sr.botanist_id = b.botanist_id
-        JOIN plant_availability av ON sr.availability_id = av.availability_id
+        LEFT JOIN plant p ON sr.plant_id = p.plant_id
+        LEFT JOIN origin o ON p.origin_id = o.origin_id
+        LEFT JOIN botanist b ON sr.botanist_id = b.botanist_id
+        LEFT JOIN plant_availability av ON sr.availability_id = av.availability_id
         WHERE sr.recording_taken < %s"""
     delete_query = "DELETE FROM sensor_result sr WHERE sr.recording_taken < %s"
 
