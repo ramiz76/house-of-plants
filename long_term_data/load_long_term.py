@@ -96,7 +96,7 @@ def download_data_from_s3(current_s3: BaseClient) -> None:
 
     try:
         current_s3.download_file(environ.get(
-            "BUCKET_NAME"), "long_term_data/full_s3_data.csv", download_path)
+            "BUCKET_NAME"), "full_s3_data.csv", download_path)
 
     except:
         df = pd.DataFrame(columns=COLUMNS)
@@ -149,4 +149,5 @@ if __name__ == "__main__":
     combine_csv_files()
     print("Files combined.")
     upload_files_to_s3(current_s3)
+    os.remove("long_term_data/full_s3_data.csv")
     print("File uploaded to S3.")
