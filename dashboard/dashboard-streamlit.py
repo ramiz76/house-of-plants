@@ -243,6 +243,7 @@ def display_temp_std_bar_chart(plant_data: pd.DataFrame) -> None:
 
 if __name__ == "__main__":
 
+    load_dotenv()
     dashboard_title()
     plant_df = fetch_data()
     plant_error_df = plant_df[plant_df["error"] != "No Error"]
@@ -250,7 +251,7 @@ if __name__ == "__main__":
     plant_df = plant_df[plant_df["error"] == "No Error"]
 
     plants_to_display = st.sidebar.multiselect("Select Plant(s) for the graphs",
-                options=plant_df["plant_name"].unique(), default=plant_df["plant_name"].unique()[1])
+                                               options=plant_df["plant_name"].unique(), default=plant_df["plant_name"].unique()[1])
 
     scatter_plot_title()
     display_average_soil_moisture(plant_df, plants_to_display)
