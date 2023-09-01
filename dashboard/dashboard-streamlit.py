@@ -11,10 +11,15 @@ import pandas as pd
 import seaborn as sns
 import streamlit as st
 
-from transform import remove_duplicate_plants
-
 
 TIME_NOW = datetime.now(timezone.utc)
+
+
+def remove_duplicate_plants(plant_data: pd.DataFrame) -> pd.DataFrame:
+    """Returns data-frame without duplicate plants - taken from transform.py"""
+
+    plant_data.drop_duplicates(subset="plant_name", keep="first", inplace=True)
+    return plant_data
 
 
 def dashboard_title() -> None:

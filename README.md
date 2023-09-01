@@ -102,4 +102,14 @@ Below are some screenshots of our tableau dashboard.
 
 #### Long Term
 
-As mentioned in cloud setup, once Streamlit is up and running, you will be able to view visualisations of all the long term data.
+Run
+
+```
+streamlit run dasboard-streamlit.py
+```
+
+to start streamlit dashboard. Ensure the streamlit script is targetting your long term data file, either on the s3 bucket or a version of it you've downloaded.
+
+Below are screenshots from our latest run of the long term load code.
+
+![Screenshot of Streamlit Plants By Country](/screenshots/Streamlit_Plants_By_Country.png)
