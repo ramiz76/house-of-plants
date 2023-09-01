@@ -235,8 +235,6 @@ if __name__ == "__main__":
     st.write(plant_df)
     plant_df = plant_df[plant_df["error"] == "No Error"]
 
-    # display_frequency_plant_watering(plant_data)
-
     plants_to_display = st.sidebar.multiselect("Select Plant(s) for the graphs",
                 options=plant_df["plant_name"].unique(), default=[1])
 
