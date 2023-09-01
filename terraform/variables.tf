@@ -18,18 +18,3 @@ variable "DATABASE_PASSWORD" {
 
 }
 
-
-variable "SECRET_ACCESS_KEY" {
-  type = string
-
-}
-
-variable "ACCESS_KEY_ID" {
-  type = string
-
-}
-
-variable "S3_BUCKET" {
-  type = string
-
-}
