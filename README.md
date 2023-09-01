@@ -74,8 +74,28 @@ If the API returns a json response with an error, then the CSV file records that
 
 ## Transform
 
+Some of the data was not recorded correctly in the API from the sensors, which meant that this data needed to be corrected with the transform script.
+
+**Temperature**
+Temperature that was too high was deleted as it was considered an outlier. Since the museum was in the UK, Liverpool, the temperature was decided to be deleted if it was below -10 and above 39 degrees Celcius.
+
+**Last watered**
+If last watered time in some data from sensors was later than the recording taken time - it was considered incorrect data and voided.
+
+**Email and phone number**
+Email and phone numbers were verified using Regex expressions to make sure the data is getting valid phone numbers and emails.
+
+**Scientific name**
+Scientific name extracted with extract.py was processed as a list even though none of the values turned out to be lists of values but always contained 0-1 scientific name. For that reason, the data was transformed to not include the list formatting when displaying the data.
+
+**Recording taken**
+Recording taken had missing time for the errors and some other received data. However, as noticed from manual tests, when the API is called, the recording taken was at the same time as the call itself. For that reason, it was decided that using cache with dataframe processing, those times would be replaced with the times from the previously processed data which _might_ cause some seconds to be slightly off on the recording taken but would show the recording taken time correct to the minute, rather than having the recorded time as empty.
+
+**Soil Moisture**
+Since moisture was said to be as a percentage - all data with moisture above 100 or below 0 was removed and assumed as incorrectly recorded data.
+
 **Phone Numbers**
-Assuming that the phone numbers extracted that contain '.' in the middle of the numbers are phone numbers and these dots are replaced with dashes.
+Some of the phone numbers were in the correct phone number format but instead of containing dashes ("-"), they had "." which were changed to be dashes and assumed to be correct.
 
 ## Load
 
@@ -102,17 +122,20 @@ We use two visualisation tools for this repo, tableau for the short term data, s
 
 Below are some screenshots of our tableau dashboard.
 
+![THIS IS FOR TEXT ABOUT IMAGE](screenshots/NAME OF THE FILE AND .TYPE)
+
 #### Long Term
 
 Run
 
 ```
-streamlit run dasboard-streamlit.py
+streamlit run dashboard/dasboard-streamlit.py
 ```
 
 to start streamlit dashboard. Ensure the streamlit script is targetting your long term data file, either on the s3 bucket or a version of it you've downloaded.
 
 Below are screenshots from our latest run of the long term load code.
+
 Plants By Region | Standard Deviation Temp By Region
 :-------------------------:|:-------------------------:
 <img src="/screenshots/Streamlit_Plants_By_Country.jpg" width="500" height="300" alt="Screenshot of Streamlit Plants By Country"> | <img src="/screenshots/Streamlit_Standard_Deviation.png" width="500" height="300" alt="Screenshot of Streamlit Standard Deviation Temp By Country">
@@ -120,3 +143,4 @@ Plants By Region | Standard Deviation Temp By Region
 |                                                   Mean Temp By Region                                                   |                                                    Median Temp By Region                                                    |
 | :---------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------: |
 | <img src="/screenshots/Streamlit_Mean.png" width="500" height="300" alt="Screenshot of Streamlit Mean Temp By Country"> | <img src="/screenshots/Streamlit_Median.png" width="500" height="300" alt="Screenshot of Streamlit Median Temp By Country"> |
+
