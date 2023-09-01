@@ -39,9 +39,10 @@ def retrieve_data_older_than_24_hours(connection: psycopg2.extensions.connection
     """Retrieves data older than 24hrs from the short term RDS database and stores as a CSV file
     and deletes data older than 24hrs from the RDS."""
 
-    twenty_four_hours_ago = datetime.now() - timedelta(hours=6)
+    twenty_four_hours_ago = datetime.now() - timedelta(hours=24)
     formatted_time = twenty_four_hours_ago.strftime("%Y-%m-%d %H:%M:%S")
-    query_for_data = f"""SELECT
+
+    query_for_data = """SELECT
         p.plant_name as plant_name,
         p.scientific_name as scientific_name,
         p.api_id as api_id,
@@ -49,7 +50,7 @@ def retrieve_data_older_than_24_hours(connection: psycopg2.extensions.connection
         sr.last_watered as last_watered,
         sr.soil_moisture as soil_moisture,
         sr.temperature as temperature,
-        p.sunlight as sunlight, 
+        p.sunlight as sunlight,
         sr.recording_taken as recording_taken,
         o.longitude as longitude,
         o.latitude as latitude,
@@ -64,13 +65,14 @@ def retrieve_data_older_than_24_hours(connection: psycopg2.extensions.connection
         JOIN origin o ON p.origin_id = o.origin_id
         JOIN botanist b ON sr.botanist_id = b.botanist_id
         JOIN plant_availability av ON sr.availability_id = av.availability_id
-        WHERE sr.recording_taken < '{formatted_time}'"""
+        WHERE sr.recording_taken < %s"""
+    delete_query = "DELETE FROM sensor_result sr WHERE sr.recording_taken < %s"
 
     with connection.cursor() as cur:
-        cur.execute(query_for_data)
+        cur.execute(query_for_data, (formatted_time,))
         result = cur.fetchall()
-        cur.execute(
-            f"DELETE FROM sensor_result sr WHERE sr.recording_taken < '{formatted_time}'")
+        cur.execute(delete_query, (formatted_time,))
+        connection.commit()
 
     data = pd.DataFrame(result, columns=COLUMNS)
     data.to_csv("long_term_data/24_hour_data.csv", index=False)
