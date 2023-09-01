@@ -34,7 +34,13 @@ As above with a few differences:
 - Start streamlit app to view visualisations online.
 - TODO - document any parts of the cloud setup that are manual
 
-## Assumptions made
+## Database Schema
+
+Star schema, with sensor_result as our fact table, storing each sensor reading from the API, and dimension tables containing info on plants and botanists from the museum.
+
+![Screenshot of Database Schema Diagram](Database_Schema_Screenshot.png)
+
+## Assumptions Made
 
 - No two plants have the same origin latitude but different longitude or vice versa (Using each as a unique constraint in the schema)
 - Sunlight refers to the level of sunlight the plant wants
@@ -53,11 +59,15 @@ As above with a few differences:
 
 ## Extract
 
-The extract script extracts from the following URL : "https://data-eng-plants-api.herokuapp.com/plants/ID".
-It is assumed that there are only 50 plants and that no plants can be added.
-The extract script reaches every endpoint with the ID from 0 to 50.
+The extract script extracts from the LMNH sensor API endpoint:
 
-If the API returns a json response with an error, then the CSV file records that error.
+```
+https://data-eng-plants-api.herokuapp.com/plants/{ID}
+```
+
+targeting IDs 0 through 50 - It is assumed that there are only 50 plants and that no plants will be added this week.
+
+If the API returns a json response with an error, then the CSV file records that error so that we can do analysis on numbers and types of errors, and which endpoint these errors more frequently occur on.
 
 ## Transform
 
