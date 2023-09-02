@@ -125,19 +125,13 @@ Below are some screenshots of our tableau dashboard.
 
 |                                                  Data on All Plants                                                   |                                         Data on just plants from the US                                          |
 | :-------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------: |
-| <img src="/screenshots/Tableau_Country_Stats.png" width="500" height="400" alt="Dashboard overview with country map"> | <img src="/screenshots/Tableau_US_Stats.png" width="500" height="400" alt="Dashboard overview with country map"> |
-
-##### Soil Moisture by Hour
-
-<img src="/screenshots/Tableau_Soil_Moisture.png" width="500" height="400" alt="Dashboard Soil Moisture Figure">
-
-##### Plants Cared For by Botanist
-
-<img src="/screenshots/Tableau_Botanist_Info.png" width="500" height="400" alt="Dashboard Botanist Info Figure">
+| <img src="/screenshots/Tableau_Country_Stats.png" width="500" height="300" alt="Dashboard overview with country map"> | <img src="/screenshots/Tableau_US_Stats.png" width="500" height="300" alt="Dashboard overview with country map"> |
 
 ##### Hovering Gives More Information
 
-<img src="/screenshots/Hover_Moisture.png" width="500" height="400" alt="Hovering on soil moisture figure gives more info"> | <img src="/screenshots/Hover_Botanist.png" width="500" height="400" alt="Hovering on botanist figure gives more info">
+|                                                  Soil Moisture by Hour                                                |                                         Plants Cared For by Botanist                                          |
+| :-------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------: |
+| <img src="/screenshots/Tableau_Soil_Moisture.png" width="500" height="260"> | <img src="/screenshots/Tableau_Botanist_Info.png" width="500" height="200"> |
 
 
 #### Long Term
