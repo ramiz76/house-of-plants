@@ -131,7 +131,7 @@ Below are some screenshots of our tableau dashboard.
 
 |                                                  Soil Moisture by Hour                                                |                                         Plants Cared For by Botanist                                          |
 | :-------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------: |
-| <img src="/screenshots/Tableau_Soil_Moisture.png" width="500" height="260"> | <img src="/screenshots/Tableau_Botanist_Info.png" width="500" height="200"> |
+| <img src="/screenshots/Tableau_Soil_Moisture.png" width="500" height="260"> | <img src="/screenshots/Tableau_Botanist_Info.png" width="500" height="160"> |
 
 
 #### Long Term
