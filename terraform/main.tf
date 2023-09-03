@@ -82,6 +82,113 @@ resource "aws_security_group" "house-of-plants-ecs-sg" {
 }
 
 
+resource "aws_iam_role" "ecs-task-execution-role" {
+  name = "ecs-task-execution-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        "Action" : "sts:AssumeRole",
+        "Principal" : {
+          "Service" : "ecs-tasks.amazonaws.com"
+        },
+        Effect = "Allow",
+        Sid    = ""
+      },
+
+      {
+        "Action" : "sts:AssumeRole",
+        "Principal" : {
+          "Service" : "scheduler.amazonaws.com",
+          "Condition" : {
+            "StringEquals" : {
+              "aws:SourceAccount" : "129033205317"
+          } }
+        },
+        Effect = "Allow",
+        Sid    = ""
+      }
+    ]
+  })
+  inline_policy {
+    name = "ecs-task-inline-policy"
+    policy = jsonencode({
+      Version = "2012-10-17",
+      Statement = [
+        {
+          Action   = "ecs:DescribeTaskDefinition",
+          Effect   = "Allow",
+          Resource = "*",
+          Condition = {
+            "ArnLike" : {
+              "ecs:cluster" : "arn:aws:ecs:*:129033205317:cluster/house-of-plants-cluster"
+            }
+          }
+        },
+        {
+          Action   = "ecs:DescribeTasks",
+          Effect   = "Allow",
+          Resource = "*",
+          Condition = {
+            "ArnLike" : {
+              "ecs:cluster" : "arn:aws:ecs:*:129033205317:cluster/house-of-plants-cluster"
+            }
+          }
+        },
+        {
+          Action   = "ecs:RunTask",
+          Effect   = "Allow",
+          Resource = "*",
+          Condition = {
+            "ArnLike" : {
+              "ecs:cluster" : "arn:aws:ecs:*:129033205317:cluster/house-of-plants-cluster"
+            }
+          }
+        },
+        {
+          Action   = "iam:PassRole",
+          Effect   = "Allow",
+          Resource = "*"
+        }
+      ]
+    })
+  }
+
+}
+
+resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment" {
+  role       = aws_iam_role.ecs-task-execution-role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+
+
+resource "aws_iam_role" "ecs-task-role-policy" {
+  name = "ecs-task-role-policy"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        "Action" : "sts:AssumeRole",
+        "Principal" : {
+          "Service" : "ecs-tasks.amazonaws.com"
+        },
+        Effect = "Allow",
+        Sid    = ""
+      }
+    ]
+  })
+
+}
+
+resource "aws_iam_role_policy_attachment" "ecs-task-read-bucket-policy" {
+  role       = aws_iam_role.ecs-task-role-policy.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+
 
 resource "aws_ecs_task_definition" "house-of-plants-short-pipeline-ecs" {
   family                   = "house-of-plants-short-pipeline-definition"
@@ -89,8 +196,8 @@ resource "aws_ecs_task_definition" "house-of-plants-short-pipeline-ecs" {
   network_mode             = "awsvpc"
   memory                   = "3072"
   requires_compatibilities = ["FARGATE"]
-  task_role_arn            = "arn:aws:iam::129033205317:role/ecs_role"
-  execution_role_arn       = "arn:aws:iam::129033205317:role/ecsTaskExecutionRole"
+  task_role_arn            = aws_iam_role.ecs-task-role-policy.arn
+  execution_role_arn       = aws_iam_role.ecs-task-execution-role.arn
 
   container_definitions = jsonencode([
     {
@@ -151,8 +258,8 @@ resource "aws_ecs_task_definition" "house-of-plants-long-pipeline-ecs" {
   network_mode             = "awsvpc"
   memory                   = "3072"
   requires_compatibilities = ["FARGATE"]
-  task_role_arn            = "arn:aws:iam::129033205317:role/ecs_role"
-  execution_role_arn       = "arn:aws:iam::129033205317:role/ecsTaskExecutionRole"
+  task_role_arn            = aws_iam_role.ecs-task-role-policy.arn
+  execution_role_arn       = aws_iam_role.ecs-task-execution-role.arn
 
   container_definitions = jsonencode([
     {
@@ -225,8 +332,8 @@ resource "aws_ecs_task_definition" "house-of-plants-long-dashboard-ecs" {
   network_mode             = "awsvpc"
   memory                   = "3072"
   requires_compatibilities = ["FARGATE"]
-  task_role_arn            = "arn:aws:iam::129033205317:role/house-of-plants-dashboard-role"
-  execution_role_arn       = "arn:aws:iam::129033205317:role/ecsTaskExecutionRole"
+  task_role_arn            = aws_iam_role.ecs-task-role-policy.arn
+  execution_role_arn       = aws_iam_role.ecs-task-execution-role.arn
 
   container_definitions = jsonencode([
     {
@@ -317,203 +424,55 @@ resource "aws_ecs_service" "house-of-plants-long-dashboard-service" {
 }
 
 
+resource "aws_scheduler_schedule" "house-of-plants-short-schedule" {
+  name       = "house-of-plants-short-schedule"
+  group_name = "default"
 
+  flexible_time_window {
+    mode = "OFF"
+  }
 
+  schedule_expression = "cron(* * * * ? *)"
 
+  target {
+    arn      = aws_ecs_cluster.house-of-plants-cluster.arn
+    role_arn = aws_iam_role.ecs-task-execution-role.arn
+    ecs_parameters {
+      task_definition_arn = aws_ecs_task_definition.house-of-plants-short-pipeline-ecs.arn
+      launch_type         = "FARGATE"
+      task_count          = 1
+      network_configuration {
+        assign_public_ip = true
+        subnets          = ["subnet-03b1a3e1075174995", "subnet-0667517a2a13e2a6b", "subnet-0cec5bdb9586ed3c4"]
+        security_groups  = [aws_security_group.house-of-plants-ecs-sg.id]
+      }
+    }
+  }
+}
 
+resource "aws_scheduler_schedule" "house-of-plants-long-schedule" {
+  name       = "house-of-plants-long-schedule"
+  group_name = "default"
 
+  flexible_time_window {
+    mode = "OFF"
+  }
 
+  schedule_expression = "cron(0 */6 * * ? *)"
 
-
-
-
-
-
-
-
-
-
-
-# resource "aws_iam_role" "scheduled-short-assume-role-policy" {
-#   name = "scheduled-short-assume-role"
-
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17",
-#     Statement = [
-#       {
-#         Action = "sts:AssumeRole",
-#         Effect = "Allow",
-#         Principal = {
-#           Service = "ecs-tasks.amazonaws.com"
-#         }
-#       }
-#     ]
-#   })
-# }
-
-
-# resource "aws_scheduler_schedule" "house-of-plants-short-schedule" {
-#   name       = "house-of-plants-short-schedule"
-#   group_name = "default"
-
-#   flexible_time_window {
-#     mode = "OFF"
-#   }
-
-#   schedule_expression = "cron(* * * * ? *)"
-
-#   target {
-#     arn      = aws_ecs_cluster.house-of-plants-cluster.arn
-#     role_arn = "arn:aws:iam::129033205317:role/service-role/Amazon_EventBridge_Scheduler_ECS_2a4e2c83b1"
-#     ecs_parameters {
-#       task_definition_arn = aws_ecs_task_definition.house-of-plants-short-pipeline-ecs.arn
-#       launch_type         = "FARGATE"
-#       task_count          = 1
-#       network_configuration {
-#         assign_public_ip = true
-#         subnets          = ["subnet-03b1a3e1075174995", "subnet-0667517a2a13e2a6b", "subnet-0cec5bdb9586ed3c4"]
-#         security_groups  = [aws_security_group.house-of-plants-ecs-sg.id]
-#       }
-#     }
-#   }
-# }
-
-# resource "aws_scheduler_schedule" "house-of-plants-long-schedule" {
-#   name       = "house-of-plants-long-schedule"
-#   group_name = "default"
-
-#   flexible_time_window {
-#     mode = "OFF"
-#   }
-
-#   schedule_expression = "cron(0 */3 * * ? *)"
-
-#   target {
-#     arn      = aws_ecs_cluster.house-of-plants-cluster.arn
-#     role_arn = "arn:aws:iam::129033205317:role/service-role/Amazon_EventBridge_Scheduler_ECS_2a4e2c83b1"
-#     ecs_parameters {
-#       task_definition_arn = aws_ecs_task_definition.house-of-plants-long-pipeline-ecs.arn
-#       launch_type         = "FARGATE"
-#       task_count          = 1
-#       network_configuration {
-#         assign_public_ip = true
-#         subnets          = ["subnet-03b1a3e1075174995", "subnet-0667517a2a13e2a6b", "subnet-0cec5bdb9586ed3c4"]
-#         security_groups  = [aws_security_group.house-of-plants-ecs-sg.id]
-#       }
-#     }
-#   }
-# }
-
-
-
-# resource "aws_iam_role" "house-of-plants-ecs-execution-role" {
-#   name = "house-of-plants-ecs-execution-role"
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17",
-#     Statement = [
-#       {
-#         Action = "sts:AssumeRole",
-#         Effect = "Allow",
-#         Sid    = "",
-#         Principal = {
-#           Service = "ecs.amazonaws.com"
-#         }
-#       },
-
-#     ]
-#   })
-#   inline_policy {
-#     name = "ecs-task-inline-policy"
-#     policy = jsonencode({
-#       Version = "2012-10-17",
-#       Statement = [
-#         {
-#           Action   = "ecs:DescribeTaskDefinition",
-#           Effect   = "Allow",
-#           Resource = "*"
-#         },
-#         {
-#           Action   = "ecs:DescribeTasks",
-#           Effect   = "Allow",
-#           Resource = "*"
-#         },
-#         {
-#           Action   = "ecs:RunTask",
-#           Effect   = "Allow",
-#           Resource = "*"
-#         }
-#       ]
-#     })
-#   }
-# }
-
-
-
-
-
-
-
-
-
-
-
-# resource "aws_ecs_task_definition" "house-of-plants-short-dashboard"{
-#     family = "house-of-plants-short-dashboard"
-#     cpu = "1024"
-#     network_mode = "awsvpc"
-#     memory = "3072"
-#     requires_compatibilities = ["FARGATE"]
-#     execution_role_arn = aws_iam_role.house-of-plants-ecs-execution-role.arn
-
-#     container_definitions= jsonencode([
-#         {
-#             "name": "short-term-dashboard",
-#             "image": "to be determined",
-#             "portMappings": [
-#                 {
-#                     "name": "short-term-dashboard-80-tcp",
-#                     "cpu":0,
-#                     "containerPort": 80,
-#                     "hostPort": 80,
-#                     "protocol": "tcp",
-#                     "appProtocol": "http"
-#                 },
-#                 {
-#                     "name": "short-term-dashboard-8501-tcp",
-#                     "containerPort": 8501,
-#                     "hostPort": 8501,
-#                     "protocol": "tcp",
-#                     "appProtocol": "http"
-#                 }
-#             ],
-#             "essential": true,
-#             "environment": [
-#                 {
-#                     "name": "DATABASE_NAME",
-#                     "value": var.DATABASE_NAME
-#                 },
-#                 {
-#                     "name": "DATABASE_USERNAME",
-#                     "value": var.DATABASE_USERNAME
-#                 },
-#                 {
-#                     "name": "DATABASE_ENDPOINT",
-#                     "value": aws_db_instance.house-of-plants-short-term-rds.address
-#                 },
-#                 {
-#                     "name": "DATABASE_PASSWORD",
-#                     "value": var.DATABASE_PASSWORD
-#                 }],
-#             "logConfiguration": {
-#                 "logDriver": "awslogs",
-#                 "options": {
-#                     "awslogs-create-group": "true",
-#                     "awslogs-group": "/ecs/",
-#                     "awslogs-region": "eu-west-2",
-#                     "awslogs-stream-prefix": "ecs"
-#                 }
-#             }
-#         }
-#     ])
-# }
+  target {
+    arn      = aws_ecs_cluster.house-of-plants-cluster.arn
+    role_arn = aws_iam_role.ecs-task-execution-role.arn
+    ecs_parameters {
+      task_definition_arn = aws_ecs_task_definition.house-of-plants-long-pipeline-ecs.arn
+      launch_type         = "FARGATE"
+      task_count          = 1
+      network_configuration {
+        assign_public_ip = true
+        subnets          = ["subnet-03b1a3e1075174995", "subnet-0667517a2a13e2a6b", "subnet-0cec5bdb9586ed3c4"]
+        security_groups  = [aws_security_group.house-of-plants-ecs-sg.id]
+      }
+    }
+  }
+}
 
