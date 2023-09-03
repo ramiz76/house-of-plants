@@ -2,16 +2,24 @@ provider "aws" {
   region = "eu-west-2"
 }
 
+
 resource "aws_ecr_repository" "house-of-plants-short-term-ecr" {
-  name = "house-of-plants-short-term-ecr"
+  name         = "house-of-plants-short-term-ecr"
+  force_delete = true
+
 }
+
 
 resource "aws_ecr_repository" "house-of-plants-long-term-ecr" {
-  name = "house-of-plants-long-term-ecr"
+  name         = "house-of-plants-long-term-ecr"
+  force_delete = true
+
 }
 
+
 resource "aws_ecr_repository" "house-of-plants-long-dashboard-ecr" {
-  name = "house-of-plants-long-dashboard-ecr"
+  name         = "house-of-plants-long-dashboard-ecr"
+  force_delete = true
 }
 
 
@@ -36,6 +44,7 @@ resource "aws_security_group" "house-of-plants-rds-sg" {
   }
 
 }
+
 
 resource "aws_db_instance" "house-of-plants-rds" {
 
@@ -89,22 +98,18 @@ resource "aws_iam_role" "ecs-task-execution-role" {
     Version = "2012-10-17",
     Statement = [
       {
-        "Action" : "sts:AssumeRole",
-        "Principal" : {
-          "Service" : "ecs-tasks.amazonaws.com"
+        Action = "sts:AssumeRole",
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
         },
         Effect = "Allow",
         Sid    = ""
       },
 
       {
-        "Action" : "sts:AssumeRole",
-        "Principal" : {
-          "Service" : "scheduler.amazonaws.com",
-          "Condition" : {
-            "StringEquals" : {
-              "aws:SourceAccount" : "129033205317"
-          } }
+        Action = "sts:AssumeRole",
+        Principal = {
+          Service = "scheduler.amazonaws.com"
         },
         Effect = "Allow",
         Sid    = ""
@@ -157,11 +162,11 @@ resource "aws_iam_role" "ecs-task-execution-role" {
 
 }
 
+
 resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment" {
   role       = aws_iam_role.ecs-task-execution-role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
-
 
 
 resource "aws_iam_role" "ecs-task-role-policy" {
@@ -187,7 +192,6 @@ resource "aws_iam_role_policy_attachment" "ecs-task-read-bucket-policy" {
   role       = aws_iam_role.ecs-task-role-policy.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
-
 
 
 resource "aws_ecs_task_definition" "house-of-plants-short-pipeline-ecs" {
@@ -449,6 +453,7 @@ resource "aws_scheduler_schedule" "house-of-plants-short-schedule" {
     }
   }
 }
+
 
 resource "aws_scheduler_schedule" "house-of-plants-long-schedule" {
   name       = "house-of-plants-long-schedule"
